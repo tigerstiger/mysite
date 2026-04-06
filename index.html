@@ -2,18 +2,162 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>動画まとめサイト</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>SHORTXX</title>
   <style>
-    body { font-family: sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; }
-    h1 { color: #333; }
-    .notice { background: #fff3cd; padding: 12px; border-radius: 6px; margin-bottom: 20px; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #111; color: #fff; font-family: sans-serif; overflow: hidden; height: 100dvh; }
+
+    #age-gate {
+      position: fixed; inset: 0; background: #111;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 100; gap: 24px; padding: 32px;
+    }
+    .logo-big { font-size: 36px; font-weight: 700; letter-spacing: 2px; }
+    .logo-big span { color: #E24B4A; }
+    .age-text { font-size: 15px; color: #aaa; text-align: center; line-height: 1.7; }
+    .age-btn {
+      width: 100%; max-width: 280px; padding: 14px;
+      background: #E24B4A; color: #fff; border: none;
+      border-radius: 10px; font-size: 16px; font-weight: 500; cursor: pointer;
+    }
+    .age-no { font-size: 13px; color: #666; cursor: pointer; }
+
+    #feed {
+      height: 100dvh; overflow-y: scroll;
+      scroll-snap-type: y mandatory;
+      scrollbar-width: none;
+    }
+    #feed::-webkit-scrollbar { display: none; }
+
+    .card {
+      height: 100dvh; scroll-snap-align: start;
+      position: relative; background: #1a0808;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .card-bg {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .play-btn {
+      width: 60px; height: 60px; border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .play-triangle {
+      width: 0; height: 0;
+      border-top: 12px solid transparent;
+      border-bottom: 12px solid transparent;
+      border-left: 22px solid rgba(255,255,255,0.8);
+      margin-left: 5px;
+    }
+
+    .badge {
+      display: inline-block; font-size: 11px; font-weight: 500;
+      padding: 3px 8px; border-radius: 4px; margin-bottom: 6px;
+      background: #E24B4A; color: #fff;
+    }
+    .overlay {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 20px 16px 32px;
+      background: linear-gradient(transparent, rgba(0,0,0,0.9));
+    }
+    .actress { font-size: 13px; color: #E24B4A; font-weight: 500; margin-bottom: 4px; }
+    .title { font-size: 14px; color: #fff; font-weight: 500; margin-bottom: 14px; line-height: 1.5; }
+    .cta {
+      width: 100%; padding: 12px; background: #E24B4A;
+      color: #fff; border: none; border-radius: 10px;
+      font-size: 15px; font-weight: 500; cursor: pointer;
+    }
+
+    .tags {
+      position: fixed; top: 0; left: 0; right: 0;
+      display: flex; gap: 8px; padding: 12px 16px;
+      overflow-x: auto; scrollbar-width: none; z-index: 10;
+      background: linear-gradient(#111 60%, transparent);
+    }
+    .tags::-webkit-scrollbar { display: none; }
+    .tag {
+      flex-shrink: 0; padding: 6px 14px;
+      background: rgba(255,255,255,0.1);
+      border: 0.5px solid rgba(255,255,255,0.2);
+      border-radius: 20px; font-size: 12px; color: #fff; cursor: pointer;
+      white-space: nowrap;
+    }
+    .tag.active { background: #E24B4A; border-color: #E24B4A; }
+
+    .logo-top {
+      position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+      font-size: 16px; font-weight: 700; letter-spacing: 1px; z-index: 11;
+      pointer-events: none;
+    }
+    .logo-top span { color: #E24B4A; }
   </style>
 </head>
 <body>
-  <div class="notice">⚠️ 本サイトは18歳以上の方のみご利用いただけます。</div>
-  <h1>動画まとめサイト</h1>
-  <p>厳選した動画作品をショート形式でご紹介するサービスです。</p>
-  <p>現在準備中です。もうしばらくお待ちください。</p>
+
+<div id="age-gate">
+  <div class="logo-big">SHORT<span>XX</span></div>
+  <p class="age-text">本サイトは成人向けコンテンツを含みます。<br>18歳以上の方のみご利用いただけます。</p>
+  <button class="age-btn" onclick="enterSite()">18歳以上です・入場する</button>
+  <span class="age-no" onclick="location.href='https://www.google.com'">18歳未満・退場する</span>
+</div>
+
+<div class="logo-top">SHORT<span>XX</span></div>
+
+<div class="tags">
+  <div class="tag active" onclick="setTag(this)">すべて</div>
+  <div class="tag" onclick="setTag(this)">素人</div>
+  <div class="tag" onclick="setTag(this)">巨乳</div>
+  <div class="tag" onclick="setTag(this)">NTR</div>
+  <div class="tag" onclick="setTag(this)">個人撮影</div>
+  <div class="tag" onclick="setTag(this)">初撮り</div>
+  <div class="tag" onclick="setTag(this)">人妻</div>
+</div>
+
+<div id="feed">
+  <div class="card">
+    <div class="card-bg"><div class="play-btn"><div class="play-triangle"></div></div></div>
+    <div class="overlay">
+      <span class="badge">昨日の売上1位</span>
+      <div class="actress">桃乃木かな</div>
+      <div class="title">憧れの先輩と二人きりの放課後…神スタイル美女の初撮り</div>
+      <button class="cta" onclick="location.href='https://fanza.com'">続きを見る →</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-bg"><div class="play-btn"><div class="play-triangle"></div></div></div>
+    <div class="overlay">
+      <span class="badge">SNSでバズ中</span>
+      <div class="actress">三上悠亜</div>
+      <div class="title">人気急上昇中の美少女が魅せる衝撃の素顔</div>
+      <button class="cta" onclick="location.href='https://fanza.com'">続きを見る →</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-bg"><div class="play-btn"><div class="play-triangle"></div></div></div>
+    <div class="overlay">
+      <span class="badge">人気急上昇</span>
+      <div class="actress">河北彩花</div>
+      <div class="title">美人妻の秘密の時間…夫には絶対言えない午後</div>
+      <button class="cta" onclick="location.href='https://fanza.com'">続きを見る →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function enterSite() {
+    document.getElementById('age-gate').style.display = 'none';
+    localStorage.setItem('age_verified', '1');
+  }
+  if (localStorage.getItem('age_verified')) {
+    document.getElementById('age-gate').style.display = 'none';
+  }
+  function setTag(el) {
+    document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+  }
+</script>
 </body>
 </html>
