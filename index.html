@@ -61,18 +61,26 @@
     .thumb {
       width: 100px; height: 140px; border-radius: 8px;
       background: #2a0a0a; flex-shrink: 0;
+      overflow: hidden; position: relative;
+    }
+    .thumb img {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .thumb-overlay {
+      position: absolute; inset: 0;
       display: flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.3);
     }
     .play-icon {
       width: 36px; height: 36px; border-radius: 50%;
-      background: rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.2);
       display: flex; align-items: center; justify-content: center;
     }
     .play-tri {
       width: 0; height: 0;
       border-top: 8px solid transparent;
       border-bottom: 8px solid transparent;
-      border-left: 14px solid rgba(255,255,255,0.8);
+      border-left: 14px solid rgba(255,255,255,0.9);
       margin-left: 3px;
     }
     .card-info { flex: 1; }
@@ -99,7 +107,7 @@
     .about {
       padding: 24px 16px; border-top: 0.5px solid #222; margin-top: 8px;
     }
-    .about h2 { font-size: 15px; font-weight: 500; margin-bottom: 12px; color: #fff; }
+    .about h2 { font-size: 15px; font-weight: 500; margin-bottom: 12px; }
     .about p { font-size: 13px; color: #888; line-height: 1.8; margin-bottom: 8px; }
 
     footer {
@@ -136,66 +144,70 @@
 <div class="section-title">人気作品ピックアップ</div>
 
 <div class="video-card">
-  <div class="thumb"><div class="play-icon"><div class="play-tri"></div></div></div>
+  <div class="thumb">
+    <img src="https://awsimgsrc.dmm.co.jp/pics_dig/digital/video/nghj00008/nghj00008pl.jpg" alt="サムネイル" onerror="this.parentElement.innerHTML='<div class=thumb-overlay><div class=play-icon><div class=play-tri></div></div></div>'">
+    <div class="thumb-overlay"><div class="play-icon"><div class="play-tri"></div></div></div>
+  </div>
   <div class="card-info">
     <span class="badge">昨日の売上1位</span>
     <div class="card-actress">桃乃木かな</div>
     <div class="card-title">憧れの先輩と二人きりの放課後…神スタイル美女の初撮り</div>
     <div class="card-desc">業界屈指の神スタイルで人気急上昇中の桃乃木かなが魅せる、緊張感あふれる初撮り作品。予告編だけでもその魅力が伝わってくる話題作。</div>
     <div class="card-tags">
-      <span class="card-tag">初撮り</span>
-      <span class="card-tag">美少女</span>
-      <span class="card-tag">スレンダー</span>
+      <span class="card-tag">初撮り</span><span class="card-tag">美少女</span><span class="card-tag">スレンダー</span>
     </div>
-    <a class="card-cta" href="https://www.dmm.co.jp" target="_blank">続きをFANZAで見る →</a>
+    <a class="card-cta" href="https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=nghj00008/" target="_blank">続きをFANZAで見る →</a>
   </div>
 </div>
 
 <div class="video-card">
-  <div class="thumb"><div class="play-icon"><div class="play-tri"></div></div></div>
+  <div class="thumb">
+    <img src="https://awsimgsrc.dmm.co.jp/pics_dig/digital/video/miaa00758/miaa00758pl.jpg" alt="サムネイル" onerror="this.parentElement.innerHTML='<div class=thumb-overlay><div class=play-icon><div class=play-tri></div></div></div>'">
+    <div class="thumb-overlay"><div class="play-icon"><div class="play-tri"></div></div></div>
+  </div>
   <div class="card-info">
     <span class="badge">SNSでバズ中</span>
     <div class="card-actress">三上悠亜</div>
     <div class="card-title">人気急上昇中の美少女が魅せる衝撃の素顔</div>
-    <div class="card-desc">元国民的アイドルとしても知られる三上悠亜の最新作。清純な外見とのギャップが話題を呼び、SNSでも大きな反響を得ている注目作品。</div>
+    <div class="card-desc">元国民的アイドルとしても知られる三上悠亜の人気作。清純な外見とのギャップが話題を呼び、SNSでも大きな反響を得ている注目作品。</div>
     <div class="card-tags">
-      <span class="card-tag">美少女</span>
-      <span class="card-tag">人気女優</span>
-      <span class="card-tag">話題作</span>
+      <span class="card-tag">美少女</span><span class="card-tag">人気女優</span><span class="card-tag">話題作</span>
     </div>
-    <a class="card-cta" href="https://www.dmm.co.jp" target="_blank">続きをFANZAで見る →</a>
+    <a class="card-cta" href="https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=miaa00758/" target="_blank">続きをFANZAで見る →</a>
   </div>
 </div>
 
 <div class="video-card">
-  <div class="thumb"><div class="play-icon"><div class="play-tri"></div></div></div>
+  <div class="thumb">
+    <img src="https://awsimgsrc.dmm.co.jp/pics_dig/digital/video/jufe00400/jufe00400pl.jpg" alt="サムネイル" onerror="this.parentElement.innerHTML='<div class=thumb-overlay><div class=play-icon><div class=play-tri></div></div></div>'">
+    <div class="thumb-overlay"><div class="play-icon"><div class="play-tri"></div></div></div>
+  </div>
   <div class="card-info">
     <span class="badge">人気急上昇</span>
     <div class="card-actress">河北彩花</div>
     <div class="card-title">美人妻の秘密の時間…夫には絶対言えない午後</div>
-    <div class="card-desc">清楚な外見からは想像できない大胆な一面を見せる河北彩花の話題作。人妻ものとしてFANZAランキング上位をキープし続けている人気シリーズ。</div>
+    <div class="card-desc">清楚な外見からは想像できない大胆な一面を見せる話題作。人妻ものとしてFANZAランキング上位をキープし続けている人気シリーズ。</div>
     <div class="card-tags">
-      <span class="card-tag">人妻</span>
-      <span class="card-tag">NTR</span>
-      <span class="card-tag">ランキング上位</span>
+      <span class="card-tag">人妻</span><span class="card-tag">NTR</span><span class="card-tag">ランキング上位</span>
     </div>
-    <a class="card-cta" href="https://www.dmm.co.jp" target="_blank">続きをFANZAで見る →</a>
+    <a class="card-cta" href="https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=jufe00400/" target="_blank">続きをFANZAで見る →</a>
   </div>
 </div>
 
 <div class="video-card">
-  <div class="thumb"><div class="play-icon"><div class="play-tri"></div></div></div>
+  <div class="thumb">
+    <img src="https://awsimgsrc.dmm.co.jp/pics_dig/digital/video/ipx00923/ipx00923pl.jpg" alt="サムネイル" onerror="this.parentElement.innerHTML='<div class=thumb-overlay><div class=play-icon><div class=play-tri></div></div></div>'">
+    <div class="thumb-overlay"><div class="play-icon"><div class="play-tri"></div></div></div>
+  </div>
   <div class="card-info">
     <span class="badge">今週の新着</span>
     <div class="card-actress">波多野結衣</div>
     <div class="card-title">伝説の女優が帰ってきた…完全復活の衝撃作</div>
-    <div class="card-desc">日本を代表するトップ女優・波多野結衣の最新復活作。その圧倒的な存在感と演技力は健在で、ファン待望の一作として発売前から大きな話題に。</div>
+    <div class="card-desc">日本を代表するトップ女優・波多野結衣の人気作。その圧倒的な存在感と演技力は健在で、ファン待望の一作として大きな話題に。</div>
     <div class="card-tags">
-      <span class="card-tag">人気女優</span>
-      <span class="card-tag">巨乳</span>
-      <span class="card-tag">新作</span>
+      <span class="card-tag">人気女優</span><span class="card-tag">巨乳</span><span class="card-tag">新作</span>
     </div>
-    <a class="card-cta" href="https://www.dmm.co.jp" target="_blank">続きをFANZAで見る →</a>
+    <a class="card-cta" href="https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=ipx00923/" target="_blank">続きをFANZAで見る →</a>
   </div>
 </div>
 
