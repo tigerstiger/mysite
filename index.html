@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <title>SHORTXX</title>
+  <title>SHORTXX - エロショート動画まとめ</title>
+  <meta name="description" content="FANZAの人気作品をショート動画形式で紹介。縦スクロールで次々と楽しめる新感覚のアダルト動画まとめサイト。">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #111; color: #fff; font-family: sans-serif; overflow: hidden; height: 100dvh; }
+    body { background: #111; color: #fff; font-family: sans-serif; }
 
     #age-gate {
       position: fixed; inset: 0; background: #111;
@@ -24,66 +25,19 @@
     }
     .age-no { font-size: 13px; color: #666; cursor: pointer; }
 
-    #feed {
-      height: 100dvh; overflow-y: scroll;
-      scroll-snap-type: y mandatory;
-      scrollbar-width: none;
-    }
-    #feed::-webkit-scrollbar { display: none; }
-
-    .card {
-      height: 100dvh; scroll-snap-align: start;
-      position: relative; background: #1a0808;
+    header {
+      background: #111; padding: 14px 16px;
+      border-bottom: 0.5px solid #333;
       display: flex; align-items: center; justify-content: center;
+      position: sticky; top: 0; z-index: 10;
     }
-    .play-btn {
-      width: 60px; height: 60px; border-radius: 50%;
-      background: rgba(255,255,255,0.15);
-      display: flex; align-items: center; justify-content: center;
-    }
-    .play-triangle {
-      width: 0; height: 0;
-      border-top: 12px solid transparent;
-      border-bottom: 12px solid transparent;
-      border-left: 22px solid rgba(255,255,255,0.8);
-      margin-left: 5px;
-    }
-
-    .badge {
-      display: inline-block; font-size: 11px; font-weight: 500;
-      padding: 3px 8px; border-radius: 4px; margin-bottom: 6px;
-      background: #E24B4A; color: #fff;
-    }
-    .overlay {
-      position: absolute; bottom: 0; left: 0; right: 0;
-      padding: 20px 16px 40px;
-      background: linear-gradient(transparent, rgba(0,0,0,0.92));
-    }
-    .actress { font-size: 13px; color: #E24B4A; font-weight: 500; margin-bottom: 4px; }
-    .title { font-size: 14px; color: #fff; font-weight: 500; margin-bottom: 14px; line-height: 1.5; }
-    .cta {
-      width: 100%; padding: 14px; background: #E24B4A;
-      color: #fff; border: none; border-radius: 10px;
-      font-size: 15px; font-weight: 500; cursor: pointer;
-    }
-
-    .top-bar {
-      position: fixed; top: 0; left: 0; right: 0;
-      height: 52px; z-index: 10;
-      background: linear-gradient(#111 50%, transparent);
-      display: flex; align-items: center;
-      justify-content: center;
-      pointer-events: none;
-    }
-    .logo-top {
-      font-size: 16px; font-weight: 700; letter-spacing: 1px;
-    }
-    .logo-top span { color: #E24B4A; }
+    .logo { font-size: 20px; font-weight: 700; letter-spacing: 1px; }
+    .logo span { color: #E24B4A; }
 
     .tags {
-      position: fixed; top: 52px; left: 0; right: 0;
-      display: flex; gap: 8px; padding: 0 16px 12px;
-      overflow-x: auto; scrollbar-width: none; z-index: 10;
+      display: flex; gap: 8px; padding: 12px 16px;
+      overflow-x: auto; scrollbar-width: none;
+      border-bottom: 0.5px solid #222;
     }
     .tags::-webkit-scrollbar { display: none; }
     .tag {
@@ -91,25 +45,68 @@
       background: rgba(255,255,255,0.1);
       border: 0.5px solid rgba(255,255,255,0.2);
       border-radius: 20px; font-size: 12px; color: #fff; cursor: pointer;
-      white-space: nowrap;
     }
     .tag.active { background: #E24B4A; border-color: #E24B4A; }
 
-    .side-actions {
-      position: absolute; right: 12px; bottom: 140px;
-      display: flex; flex-direction: column; gap: 20px; align-items: center;
+    .section-title {
+      font-size: 13px; color: #aaa; padding: 16px 16px 8px;
+      border-bottom: 0.5px solid #222;
     }
-    .side-btn {
-      display: flex; flex-direction: column; align-items: center; gap: 4px;
-      cursor: pointer;
+
+    .video-card {
+      border-bottom: 0.5px solid #222;
+      padding: 16px;
+      display: flex; gap: 12px; align-items: flex-start;
     }
-    .side-icon {
-      width: 44px; height: 44px; border-radius: 50%;
+    .thumb {
+      width: 100px; height: 140px; border-radius: 8px;
+      background: #2a0a0a; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .play-icon {
+      width: 36px; height: 36px; border-radius: 50%;
       background: rgba(255,255,255,0.15);
       display: flex; align-items: center; justify-content: center;
-      font-size: 20px;
     }
-    .side-label { font-size: 11px; color: #ccc; }
+    .play-tri {
+      width: 0; height: 0;
+      border-top: 8px solid transparent;
+      border-bottom: 8px solid transparent;
+      border-left: 14px solid rgba(255,255,255,0.8);
+      margin-left: 3px;
+    }
+    .card-info { flex: 1; }
+    .badge {
+      display: inline-block; font-size: 10px; font-weight: 500;
+      padding: 2px 6px; border-radius: 3px; margin-bottom: 6px;
+      background: #E24B4A; color: #fff;
+    }
+    .card-actress { font-size: 12px; color: #E24B4A; margin-bottom: 4px; }
+    .card-title { font-size: 13px; color: #fff; font-weight: 500; line-height: 1.5; margin-bottom: 8px; }
+    .card-desc { font-size: 12px; color: #888; line-height: 1.6; margin-bottom: 10px; }
+    .card-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+    .card-tag {
+      font-size: 10px; color: #aaa;
+      border: 0.5px solid #444; border-radius: 3px; padding: 2px 6px;
+    }
+    .card-cta {
+      display: block; width: 100%; padding: 10px;
+      background: #E24B4A; color: #fff; border: none;
+      border-radius: 8px; font-size: 13px; font-weight: 500;
+      cursor: pointer; text-align: center; text-decoration: none;
+    }
+
+    .about {
+      padding: 24px 16px; border-top: 0.5px solid #222; margin-top: 8px;
+    }
+    .about h2 { font-size: 15px; font-weight: 500; margin-bottom: 12px; color: #fff; }
+    .about p { font-size: 13px; color: #888; line-height: 1.8; margin-bottom: 8px; }
+
+    footer {
+      padding: 24px 16px; border-top: 0.5px solid #222;
+      text-align: center; font-size: 12px; color: #555;
+    }
+    footer a { color: #777; text-decoration: none; margin: 0 8px; }
   </style>
 </head>
 <body>
@@ -121,9 +118,9 @@
   <span class="age-no" onclick="location.href='https://www.google.com'">18歳未満・退場する</span>
 </div>
 
-<div class="top-bar">
-  <div class="logo-top">SHORT<span>XX</span></div>
-</div>
+<header>
+  <div class="logo">SHORT<span>XX</span></div>
+</header>
 
 <div class="tags">
   <div class="tag active" onclick="setTag(this)">すべて</div>
@@ -136,49 +133,87 @@
   <div class="tag" onclick="setTag(this)">美少女</div>
 </div>
 
-<div id="feed">
-  <div class="card">
-    <div class="play-btn"><div class="play-triangle"></div></div>
-    <div class="side-actions">
-      <div class="side-btn"><div class="side-icon">♡</div><span class="side-label">いいね</span></div>
-      <div class="side-btn"><div class="side-icon">↷</div><span class="side-label">スキップ</span></div>
-    </div>
-    <div class="overlay">
-      <span class="badge">昨日の売上1位</span>
-      <div class="actress">桃乃木かな</div>
-      <div class="title">憧れの先輩と二人きりの放課後…神スタイル美女の初撮り</div>
-      <button class="cta" onclick="location.href='https://fanza.com'">続きを見る →</button>
-    </div>
-  </div>
+<div class="section-title">人気作品ピックアップ</div>
 
-  <div class="card">
-    <div class="play-btn"><div class="play-triangle"></div></div>
-    <div class="side-actions">
-      <div class="side-btn"><div class="side-icon">♡</div><span class="side-label">いいね</span></div>
-      <div class="side-btn"><div class="side-icon">↷</div><span class="side-label">スキップ</span></div>
+<div class="video-card">
+  <div class="thumb"><div class="play-icon"><div class="play-tri"></div></div></div>
+  <div class="card-info">
+    <span class="badge">昨日の売上1位</span>
+    <div class="card-actress">桃乃木かな</div>
+    <div class="card-title">憧れの先輩と二人きりの放課後…神スタイル美女の初撮り</div>
+    <div class="card-desc">業界屈指の神スタイルで人気急上昇中の桃乃木かなが魅せる、緊張感あふれる初撮り作品。予告編だけでもその魅力が伝わってくる話題作。</div>
+    <div class="card-tags">
+      <span class="card-tag">初撮り</span>
+      <span class="card-tag">美少女</span>
+      <span class="card-tag">スレンダー</span>
     </div>
-    <div class="overlay">
-      <span class="badge">SNSでバズ中</span>
-      <div class="actress">三上悠亜</div>
-      <div class="title">人気急上昇中の美少女が魅せる衝撃の素顔</div>
-      <button class="cta" onclick="location.href='https://fanza.com'">続きを見る →</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="play-btn"><div class="play-triangle"></div></div>
-    <div class="side-actions">
-      <div class="side-btn"><div class="side-icon">♡</div><span class="side-label">いいね</span></div>
-      <div class="side-btn"><div class="side-icon">↷</div><span class="side-label">スキップ</span></div>
-    </div>
-    <div class="overlay">
-      <span class="badge">人気急上昇</span>
-      <div class="actress">河北彩花</div>
-      <div class="title">美人妻の秘密の時間…夫には絶対言えない午後</div>
-      <button class="cta" onclick="location.href='https://fanza.com'">続きを見る →</button>
-    </div>
+    <a class="card-cta" href="https://www.dmm.co.jp" target="_blank">続きをFANZAで見る →</a>
   </div>
 </div>
+
+<div class="video-card">
+  <div class="thumb"><div class="play-icon"><div class="play-tri"></div></div></div>
+  <div class="card-info">
+    <span class="badge">SNSでバズ中</span>
+    <div class="card-actress">三上悠亜</div>
+    <div class="card-title">人気急上昇中の美少女が魅せる衝撃の素顔</div>
+    <div class="card-desc">元国民的アイドルとしても知られる三上悠亜の最新作。清純な外見とのギャップが話題を呼び、SNSでも大きな反響を得ている注目作品。</div>
+    <div class="card-tags">
+      <span class="card-tag">美少女</span>
+      <span class="card-tag">人気女優</span>
+      <span class="card-tag">話題作</span>
+    </div>
+    <a class="card-cta" href="https://www.dmm.co.jp" target="_blank">続きをFANZAで見る →</a>
+  </div>
+</div>
+
+<div class="video-card">
+  <div class="thumb"><div class="play-icon"><div class="play-tri"></div></div></div>
+  <div class="card-info">
+    <span class="badge">人気急上昇</span>
+    <div class="card-actress">河北彩花</div>
+    <div class="card-title">美人妻の秘密の時間…夫には絶対言えない午後</div>
+    <div class="card-desc">清楚な外見からは想像できない大胆な一面を見せる河北彩花の話題作。人妻ものとしてFANZAランキング上位をキープし続けている人気シリーズ。</div>
+    <div class="card-tags">
+      <span class="card-tag">人妻</span>
+      <span class="card-tag">NTR</span>
+      <span class="card-tag">ランキング上位</span>
+    </div>
+    <a class="card-cta" href="https://www.dmm.co.jp" target="_blank">続きをFANZAで見る →</a>
+  </div>
+</div>
+
+<div class="video-card">
+  <div class="thumb"><div class="play-icon"><div class="play-tri"></div></div></div>
+  <div class="card-info">
+    <span class="badge">今週の新着</span>
+    <div class="card-actress">波多野結衣</div>
+    <div class="card-title">伝説の女優が帰ってきた…完全復活の衝撃作</div>
+    <div class="card-desc">日本を代表するトップ女優・波多野結衣の最新復活作。その圧倒的な存在感と演技力は健在で、ファン待望の一作として発売前から大きな話題に。</div>
+    <div class="card-tags">
+      <span class="card-tag">人気女優</span>
+      <span class="card-tag">巨乳</span>
+      <span class="card-tag">新作</span>
+    </div>
+    <a class="card-cta" href="https://www.dmm.co.jp" target="_blank">続きをFANZAで見る →</a>
+  </div>
+</div>
+
+<div class="about">
+  <h2>SHORTXXについて</h2>
+  <p>SHORTXXは、FANZAの人気アダルト動画をショート形式で紹介する日本語特化のキュレーションサイトです。</p>
+  <p>TikTokのような縦スクロールUIで、気になる作品をサクサク探せます。素人・巨乳・NTRなどジャンル別に絞り込みも可能です。</p>
+  <p>掲載している動画はすべてFANZA公式の予告編・サンプル動画です。本編はFANZAにてご購入いただけます。</p>
+</div>
+
+<footer>
+  <p>© 2025 SHORTXX</p>
+  <p style="margin-top:8px;">
+    <a href="#">プライバシーポリシー</a>
+    <a href="#">お問い合わせ</a>
+  </p>
+  <p style="margin-top:8px;">本サイトは18歳以上の方のみご利用いただけます。</p>
+</footer>
 
 <script>
   function enterSite() {
