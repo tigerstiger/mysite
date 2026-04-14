@@ -63,18 +63,20 @@
       background: #2a0a0a; flex-shrink: 0;
       overflow: hidden;
     }
-    .thumb img {
-      width: 100%; height: 100%; object-fit: cover;
-    }
-    .card-info { flex: 1; }
+    .thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .card-info { flex: 1; min-width: 0; }
     .badge {
       display: inline-block; font-size: 10px; font-weight: 500;
       padding: 2px 6px; border-radius: 3px; margin-bottom: 6px;
       background: #E24B4A; color: #fff;
     }
     .card-actress { font-size: 12px; color: #E24B4A; margin-bottom: 4px; }
-    .card-title { font-size: 13px; color: #fff; font-weight: 500; line-height: 1.5; margin-bottom: 8px; }
-    .card-desc { font-size: 12px; color: #888; line-height: 1.6; margin-bottom: 10px; }
+    .card-title {
+      font-size: 13px; color: #fff; font-weight: 500;
+      line-height: 1.5; margin-bottom: 8px;
+      display: -webkit-box; -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical; overflow: hidden;
+    }
     .card-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
     .card-tag {
       font-size: 10px; color: #aaa;
@@ -87,10 +89,17 @@
       cursor: pointer; text-align: center; text-decoration: none;
     }
 
+    .loading {
+      text-align: center; padding: 40px; color: #666; font-size: 14px;
+    }
+    .error {
+      text-align: center; padding: 40px; color: #E24B4A; font-size: 14px;
+    }
+
     .about {
       padding: 24px 16px; border-top: 0.5px solid #222; margin-top: 8px;
     }
-    .about h2 { font-size: 15px; font-weight: 500; margin-bottom: 12px; color: #fff; }
+    .about h2 { font-size: 15px; font-weight: 500; margin-bottom: 12px; }
     .about p { font-size: 13px; color: #888; line-height: 1.8; margin-bottom: 8px; }
 
     footer {
@@ -98,6 +107,13 @@
       text-align: center; font-size: 12px; color: #555;
     }
     footer a { color: #777; text-decoration: none; margin: 0 8px; }
+
+    .credit {
+      text-align: center; padding: 12px;
+      font-size: 11px; color: #555;
+      border-top: 0.5px solid #222;
+    }
+    .credit a { color: #777; text-decoration: none; }
   </style>
 </head>
 <body>
@@ -114,95 +130,28 @@
 </header>
 
 <div class="tags">
-  <div class="tag active" onclick="setTag(this)">すべて</div>
-  <div class="tag" onclick="setTag(this)">素人</div>
-  <div class="tag" onclick="setTag(this)">巨乳</div>
-  <div class="tag" onclick="setTag(this)">NTR</div>
-  <div class="tag" onclick="setTag(this)">個人撮影</div>
-  <div class="tag" onclick="setTag(this)">初撮り</div>
-  <div class="tag" onclick="setTag(this)">人妻</div>
-  <div class="tag" onclick="setTag(this)">美少女</div>
+  <div class="tag active" onclick="filterBy(this, '')">すべて</div>
+  <div class="tag" onclick="filterBy(this, '素人')">素人</div>
+  <div class="tag" onclick="filterBy(this, '巨乳')">巨乳</div>
+  <div class="tag" onclick="filterBy(this, 'NTR')">NTR</div>
+  <div class="tag" onclick="filterBy(this, '個人撮影')">個人撮影</div>
+  <div class="tag" onclick="filterBy(this, '初撮り')">初撮り</div>
+  <div class="tag" onclick="filterBy(this, '人妻')">人妻</div>
+  <div class="tag" onclick="filterBy(this, '美少女')">美少女</div>
 </div>
 
-<div class="section-title">人気作品ピックアップ</div>
+<div class="section-title" id="section-label">人気作品ピックアップ（読み込み中...）</div>
+<div id="feed"><div class="loading">FANZAから最新作品を取得中...</div></div>
 
-<div class="video-card">
-  <div class="thumb">
-    <img src="https://awsimgsrc.dmm.co.jp/pics_dig/digital/video/1dandy00812a/1dandy00812apl.jpg?w=120&h=90&f=webp&t=margin" alt="松本いちか">
-  </div>
-  <div class="card-info">
-    <span class="badge">ランキング上位</span>
-    <div class="card-actress">松本いちか</div>
-    <div class="card-title">最終電車で痴女とまさかの2人きり！補習終わりのプリ尻娘</div>
-    <div class="card-desc">最終電車で出会った小悪魔系美少女・松本いちかの誘惑。プリ尻が話題の人気シリーズ最新作。</div>
-    <div class="card-tags">
-      <span class="card-tag">美少女</span>
-      <span class="card-tag">痴女</span>
-      <span class="card-tag">ランキング上位</span>
-    </div>
-    <a class="card-cta" href="https://video.dmm.co.jp/av/content/?id=1dandy00812a" target="_blank">続きをFANZAで見る →</a>
-  </div>
-</div>
-
-<div class="video-card">
-  <div class="thumb">
-    <img src="https://awsimgsrc.dmm.co.jp/pics_dig/digital/video/mida00455/mida00455pl.jpg?w=120&h=90&f=webp&t=margin" alt="羽川るる">
-  </div>
-  <div class="card-info">
-    <span class="badge">AVデビュー</span>
-    <div class="card-actress">羽川るる</div>
-    <div class="card-title">幻の国体BODY Gカップ羽川るるAVデビュー</div>
-    <div class="card-desc">プロバレーアスリートになっていたかもしれない奇跡のGカップボディが解禁。衝撃のデビュー作。</div>
-    <div class="card-tags">
-      <span class="card-tag">巨乳</span>
-      <span class="card-tag">デビュー</span>
-      <span class="card-tag">スポーツ系</span>
-    </div>
-    <a class="card-cta" href="https://video.dmm.co.jp/av/content/?id=mida00455" target="_blank">続きをFANZAで見る →</a>
-  </div>
-</div>
-
-<div class="video-card">
-  <div class="thumb">
-    <img src="https://awsimgsrc.dmm.co.jp/pics_dig/digital/video/mida00438/mida00438pl.jpg?w=120&h=90&f=webp&t=margin" alt="福田ゆあ">
-  </div>
-  <div class="card-info">
-    <span class="badge">SNSでバズ中</span>
-    <div class="card-actress">福田ゆあ</div>
-    <div class="card-title">国宝級美少女 Hcup最強笑顔プリンセス AV DEBUT</div>
-    <div class="card-desc">MOODYZ創立25周年記念を飾る大型新人・福田ゆあ。Hカップの圧倒的スタイルと最強の笑顔が話題沸騰中。</div>
-    <div class="card-tags">
-      <span class="card-tag">巨乳</span>
-      <span class="card-tag">デビュー</span>
-      <span class="card-tag">美少女</span>
-    </div>
-    <a class="card-cta" href="https://video.dmm.co.jp/av/content/?id=mida00438" target="_blank">続きをFANZAで見る →</a>
-  </div>
-</div>
-
-<div class="video-card">
-  <div class="thumb">
-    <img src="https://awsimgsrc.dmm.co.jp/pics_dig/digital/video/1ienfa34801/1ienfa34801pl.jpg?w=120&h=90&f=webp&t=margin" alt="辻井ほのか">
-  </div>
-  <div class="card-info">
-    <span class="badge">人気急上昇</span>
-    <div class="card-actress">辻井ほのか</div>
-    <div class="card-title">メモリアルヌードフォト撮影 私の妻を寝取って下さい</div>
-    <div class="card-desc">若くて綺麗な妻の裸を記録に残したい夫のリクエストから始まる禁断の寝取られ作品。話題のNTRシリーズ。</div>
-    <div class="card-tags">
-      <span class="card-tag">NTR</span>
-      <span class="card-tag">人妻</span>
-      <span class="card-tag">寝取られ</span>
-    </div>
-    <a class="card-cta" href="https://video.dmm.co.jp/av/content/?id=1ienfa34801" target="_blank">続きをFANZAで見る →</a>
-  </div>
+<div class="credit">
+  本サービスは <a href="https://affiliate.dmm.com/api/" target="_blank">DMM Webサービス</a> を利用しています。
 </div>
 
 <div class="about">
   <h2>SHORTXXについて</h2>
   <p>SHORTXXは、FANZAの人気アダルト動画をショート形式で紹介する日本語特化のキュレーションサイトです。</p>
-  <p>TikTokのような縦スクロールUIで、気になる作品をサクサク探せます。素人・巨乳・NTRなどジャンル別に絞り込みも可能です。</p>
-  <p>掲載している動画はすべてFANZA公式の予告編・サンプル動画です。本編はFANZAにてご購入いただけます。</p>
+  <p>気になる作品をサクサク探せます。素人・巨乳・NTRなどジャンル別に絞り込みも可能です。</p>
+  <p>掲載している動画はすべてFANZA公式のサンプル動画です。本編はFANZAにてご購入いただけます。</p>
 </div>
 
 <footer>
@@ -215,6 +164,12 @@
 </footer>
 
 <script>
+  const API_ID = 'HLU1m5DsrpWrznMhuenE';
+  const AFFILIATE_ID = 'tigerstiger-990';
+  const PROXY = 'https://corsproxy.io/?';
+
+  const BADGES = ['昨日の売上1位', 'SNSでバズ中', '人気急上昇', '今週の新着', '殿堂入り', '注目作品'];
+
   function enterSite() {
     document.getElementById('age-gate').style.display = 'none';
     localStorage.setItem('age_verified', '1');
@@ -222,10 +177,73 @@
   if (localStorage.getItem('age_verified')) {
     document.getElementById('age-gate').style.display = 'none';
   }
-  function setTag(el) {
+
+  function filterBy(el, keyword) {
     document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
     el.classList.add('active');
+    loadItems(keyword);
   }
+
+  async function loadItems(keyword = '') {
+    const feed = document.getElementById('feed');
+    const label = document.getElementById('section-label');
+    feed.innerHTML = '<div class="loading">FANZAから最新作品を取得中...</div>';
+
+    const params = new URLSearchParams({
+      api_id: API_ID,
+      affiliate_id: AFFILIATE_ID,
+      site: 'FANZA',
+      service: 'digital',
+      floor: 'videoa',
+      hits: '20',
+      sort: 'rank',
+      output: 'json'
+    });
+    if (keyword) params.set('keyword', keyword);
+
+    const url = PROXY + encodeURIComponent(`https://api.dmm.com/affiliate/v3/ItemList?${params}`);
+
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+      const items = data?.result?.items;
+
+      if (!items || items.length === 0) {
+        feed.innerHTML = '<div class="error">作品が見つかりませんでした。</div>';
+        return;
+      }
+
+      label.textContent = keyword ? `「${keyword}」の人気作品` : '人気作品ピックアップ';
+      feed.innerHTML = items.map((item, i) => {
+        const title = item.title || '';
+        const actress = item.iteminfo?.actress?.[0]?.name || '女優情報なし';
+        const thumb = item.imageURL?.list || '';
+        const url = item.affiliateURL || item.URL || '#';
+        const genres = item.iteminfo?.genre?.slice(0, 3).map(g =>
+          `<span class="card-tag">${g.name}</span>`).join('') || '';
+        const badge = BADGES[i % BADGES.length];
+
+        return `
+          <div class="video-card">
+            <div class="thumb">
+              ${thumb ? `<img src="${thumb}" alt="${actress}" loading="lazy">` : ''}
+            </div>
+            <div class="card-info">
+              <span class="badge">${badge}</span>
+              <div class="card-actress">${actress}</div>
+              <div class="card-title">${title}</div>
+              <div class="card-tags">${genres}</div>
+              <a class="card-cta" href="${url}" target="_blank">続きをFANZAで見る →</a>
+            </div>
+          </div>`;
+      }).join('');
+
+    } catch (e) {
+      feed.innerHTML = '<div class="error">データの取得に失敗しました。しばらくしてから再度お試しください。</div>';
+    }
+  }
+
+  loadItems();
 </script>
 </body>
 </html>
