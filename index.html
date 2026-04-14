@@ -165,7 +165,6 @@
 
 <script>
   const API_ID = 'HLU1m5DsrpWrznMhuenE';
-  const AFFILIATE_ID = 'tigerstiger-002';
   const PROXY = 'https://corsproxy.io/?';
 
   const BADGES = ['昨日の売上1位', 'SNSでバズ中', '人気急上昇', '今週の新着', '殿堂入り', '注目作品'];
@@ -191,7 +190,7 @@
 
     const params = new URLSearchParams({
       api_id: API_ID,
-      affiliate_id: AFFILIATE_ID,
+      affiliate_id: 'tigerstiger-990',
       site: 'FANZA',
       service: 'digital',
       floor: 'videoa',
@@ -219,10 +218,9 @@
         const title = item.title || '';
         const actress = item.iteminfo?.actress?.[0]?.name || '女優情報なし';
         const thumb = item.imageURL?.list || '';
-        const cid = item.content_id || '';
-        const productUrl = cid ? `https://video.dmm.co.jp/av/content/?id=${cid}` : '';
+        const productUrl = item.URL || '';
         const link = productUrl
-          ? `https://al.fanza.co.jp/?lurl=${encodeURIComponent(productUrl)}&af_id=${AFFILIATE_ID}&ch=affiliate&ch_id=link`
+          ? `https://al.fanza.co.jp/?lurl=${encodeURIComponent(productUrl)}&af_id=tigerstiger-002&ch=search_link&ch_id=link`
           : '#';
         const genres = item.iteminfo?.genre?.slice(0, 3).map(g =>
           `<span class="card-tag">${g.name}</span>`).join('') || '';
