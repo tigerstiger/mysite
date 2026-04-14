@@ -218,7 +218,8 @@
         const title = item.title || '';
         const actress = item.iteminfo?.actress?.[0]?.name || '女優情報なし';
         const thumb = item.imageURL?.list || '';
-        const url = item.affiliateURL || item.URL || '#';
+        const baseUrl = item.affiliateURL || item.URL || '';
+        const url = baseUrl ? `https://al.dmm.co.jp/?lurl=${encodeURIComponent(baseUrl)}&af_id=tigerstiger-990&ch=affiliate&ch_id=link` : '#';
         const genres = item.iteminfo?.genre?.slice(0, 3).map(g =>
           `<span class="card-tag">${g.name}</span>`).join('') || '';
         const badge = BADGES[i % BADGES.length];
