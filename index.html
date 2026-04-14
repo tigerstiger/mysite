@@ -214,12 +214,15 @@
       }
 
       label.textContent = keyword ? `「${keyword}」の人気作品` : '人気作品ピックアップ';
+
       feed.innerHTML = items.map((item, i) => {
         const title = item.title || '';
         const actress = item.iteminfo?.actress?.[0]?.name || '女優情報なし';
         const thumb = item.imageURL?.list || '';
-        const baseUrl = item.affiliateURL || item.URL || '';
-        const url = baseUrl ? `https://al.dmm.co.jp/?lurl=${encodeURIComponent(baseUrl)}&af_id=tigerstiger-990&ch=affiliate&ch_id=link` : '#';
+        const cid = item.content_id || '';
+        const link = cid
+          ? `https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=${cid}/?utm_medium=affiliate&utm_source=${AFFILIATE_ID}`
+          : '#';
         const genres = item.iteminfo?.genre?.slice(0, 3).map(g =>
           `<span class="card-tag">${g.name}</span>`).join('') || '';
         const badge = BADGES[i % BADGES.length];
@@ -234,7 +237,7 @@
               <div class="card-actress">${actress}</div>
               <div class="card-title">${title}</div>
               <div class="card-tags">${genres}</div>
-              <a class="card-cta" href="${url}" target="_blank">続きをFANZAで見る →</a>
+              <a class="card-cta" href="${link}" target="_blank">続きをFANZAで見る →</a>
             </div>
           </div>`;
       }).join('');
