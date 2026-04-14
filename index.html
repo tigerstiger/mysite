@@ -220,8 +220,11 @@
         const actress = item.iteminfo?.actress?.[0]?.name || '女優情報なし';
         const thumb = item.imageURL?.list || '';
         const cid = item.content_id || '';
-        const link = cid
-          ? `https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=${cid}/?utm_medium=affiliate&utm_source=${AFFILIATE_ID}`
+        const productUrl = cid
+          ? `https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=${cid}/`
+          : '';
+        const link = productUrl
+          ? `https://al.dmm.co.jp/?lurl=${encodeURIComponent(productUrl)}&af_id=${AFFILIATE_ID}&ch=affiliate&ch_id=link`
           : '#';
         const genres = item.iteminfo?.genre?.slice(0, 3).map(g =>
           `<span class="card-tag">${g.name}</span>`).join('') || '';
