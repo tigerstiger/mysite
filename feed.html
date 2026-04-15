@@ -3,17 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>SHORTXX - Premium Feed</title>
+  <title>SHORTXX PREMIUM</title>
   
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
   <style>
     :root {
-      --primary: #FF2D55; /* TikTok Red */
-      --bg: #000000;
-      --glass: rgba(255, 255, 255, 0.1);
-      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --primary: #FF2D55;
+      --bg: #000;
+      --glass: rgba(255, 255, 255, 0.12);
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -21,48 +20,49 @@
     body { 
       background: var(--bg); 
       color: #fff; 
-      font-family: var(--font);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif;
       overflow: hidden; 
-      height: 100dvh; /* iPhoneのバーに対応 */
-      position: fixed;
+      height: 100dvh; 
       width: 100%;
+      position: fixed;
     }
 
-    /* 高級感のある年齢確認 */
+    /* プレミアム年齢確認 */
     #age-gate {
-      position: fixed; inset: 0; background: radial-gradient(circle at center, #222 0%, #000 100%);
+      position: fixed; inset: 0; background: #000;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      z-index: 1000; gap: 30px; padding: 40px; text-align: center;
+      z-index: 2000; padding: 40px; text-align: center;
     }
-    .logo-premium { font-size: 42px; font-weight: 900; letter-spacing: -1px; }
-    .logo-premium span { color: var(--primary); text-shadow: 0 0 20px rgba(255,45,85,0.5); }
+    .gate-logo { font-size: 48px; font-weight: 800; margin-bottom: 10px; }
+    .gate-logo span { color: var(--primary); }
     .age-btn {
-      width: 100%; max-width: 300px; padding: 18px;
+      width: 100%; max-width: 320px; padding: 20px;
       background: var(--primary); color: #fff; border: none;
-      border-radius: 50px; font-size: 18px; font-weight: bold;
-      box-shadow: 0 10px 30px rgba(255,45,85,0.3); cursor: pointer;
+      border-radius: 16px; font-size: 18px; font-weight: 700;
+      margin-top: 40px; box-shadow: 0 10px 30px rgba(255,45,85,0.4);
     }
 
-    /* ヘッダー・タグ（グラスモーフィズム） */
-    .top-nav {
-      position: fixed; top: 0; width: 100%; z-index: 100;
+    /* タグバー（グラスモーフィズム） */
+    .nav-header {
+      position: fixed; top: 0; width: 100%; z-index: 1000;
       padding-top: env(safe-area-inset-top);
-      background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+      background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
     }
-    .tags-container {
-      display: flex; gap: 10px; padding: 15px; overflow-x: auto; scrollbar-width: none;
+    .tag-scroll {
+      display: flex; gap: 12px; padding: 15px; overflow-x: auto; scrollbar-width: none;
     }
+    .tag-scroll::-webkit-scrollbar { display: none; }
     .tag {
-      flex-shrink: 0; padding: 8px 18px; background: var(--glass);
-      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-      border-radius: 20px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.8);
+      flex-shrink: 0; padding: 8px 20px; background: var(--glass);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-radius: 40px; font-size: 13px; font-weight: 600; border: 1px solid rgba(255,255,255,0.1);
     }
-    .tag.active { background: var(--primary); color: #fff; }
+    .tag.active { background: var(--primary); border-color: var(--primary); }
 
-    /* フィード */
+    /* メインフィード */
     #feed {
       height: 100dvh; overflow-y: scroll; scroll-snap-type: y mandatory;
-      scrollbar-width: none; -ms-overflow-style: none;
+      scrollbar-width: none; -webkit-overflow-scrolling: touch;
     }
     #feed::-webkit-scrollbar { display: none; }
 
@@ -71,143 +71,139 @@
       position: relative; background: #000; overflow: hidden;
     }
 
-    /* 背景ボケ画像（安っぽさを消す） */
-    .bg-blur {
-      position: absolute; inset: -20px;
-      background-size: cover; background-position: center;
-      filter: blur(30px) brightness(0.4); z-index: 0;
-    }
-
-    .video-container {
-      position: absolute; inset: 0; z-index: 1;
+    /* ビデオ表示エリア */
+    .video-shell {
+      position: absolute; inset: 0;
       display: flex; align-items: center; justify-content: center;
+      z-index: 1;
     }
-    iframe { width: 100%; height: 75%; border: none; pointer-events: none; }
+    iframe { width: 100%; height: 100%; border: none; pointer-events: none; }
 
-    /* 操作エリア */
-    .ui-overlay {
+    /* サムネイル・ポスター（読み込み中・タップ待ち） */
+    .poster-layer {
       position: absolute; inset: 0; z-index: 10;
-      display: flex; flex-direction: column; justify-content: flex-end;
-      padding: calc(20px + env(safe-area-inset-bottom)) 60px 40px 15px;
-      background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 40%);
-      pointer-events: none;
+      background-size: cover; background-position: center;
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity 0.4s ease-out;
     }
-    .ui-overlay * { pointer-events: auto; }
+    .poster-layer.hidden { opacity: 0; pointer-events: none; }
+    .poster-layer::before {
+      content: ''; position: absolute; inset: 0; 
+      background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.4) 100%);
+    }
+
+    .play-trigger {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: rgba(255,255,255,0.2); backdrop-filter: blur(10px);
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid #fff; z-index: 11;
+    }
+    .play-icon {
+      width: 0; height: 0; border-top: 15px solid transparent;
+      border-bottom: 15px solid transparent; border-left: 25px solid #fff;
+      margin-left: 8px;
+    }
+
+    /* UIレイヤー */
+    .ui-layer {
+      position: absolute; inset: 0; z-index: 20;
+      pointer-events: none;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 0 16px calc(40px + env(safe-area-inset-bottom));
+      background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 50%);
+    }
+    .ui-layer * { pointer-events: auto; }
 
     .side-bar {
-      position: absolute; right: 10px; bottom: 120px;
-      display: flex; flex-direction: column; gap: 25px; align-items: center;
+      position: absolute; right: 12px; bottom: 180px;
+      display: flex; flex-direction: column; gap: 24px;
     }
-    .action-item { display: flex; flex-direction: column; align-items: center; gap: 5px; }
-    .btn-circle {
-      width: 50px; height: 50px; border-radius: 50%;
-      background: var(--glass); backdrop-filter: blur(10px);
-      display: flex; align-items: center; justify-content: center; font-size: 22px;
+    .action-btn { 
+      display: flex; flex-direction: column; align-items: center; gap: 6px; 
+      background: none; border: none; color: #fff;
     }
-    .btn-circle.active { color: var(--primary); transform: scale(1.1); }
-    .action-label { font-size: 11px; font-weight: 600; color: #eee; }
+    .icon-box {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: var(--glass); backdrop-filter: blur(15px);
+      display: flex; align-items: center; justify-content: center; font-size: 20px;
+    }
+    .icon-box.active { color: var(--primary); }
 
-    .info-box { max-width: 85%; }
-    .actress-name { font-size: 17px; font-weight: bold; color: var(--primary); margin-bottom: 8px; }
-    .video-title { font-size: 14px; line-height: 1.4; color: #fff; margin-bottom: 20px; }
-    .buy-btn {
-      display: inline-block; padding: 12px 25px; background: #fff; color: #000;
-      border-radius: 8px; font-weight: bold; text-decoration: none; font-size: 15px;
+    .info-pane { max-width: 80%; }
+    .info-pane .actress { font-size: 18px; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
+    .info-pane .title { font-size: 14px; line-height: 1.5; color: #eee; margin-bottom: 20px; font-weight: 500; }
+    .cta-btn {
+      display: inline-block; background: #fff; color: #000; padding: 12px 30px;
+      border-radius: 12px; font-weight: 800; text-decoration: none; font-size: 14px;
     }
-
-    /* 再生・音量ガイド */
-    .interaction-layer {
-      position: absolute; inset: 0; z-index: 20;
-      display: flex; align-items: center; justify-content: center;
-      background: rgba(0,0,0,0.01); /* 透明だがクリック可能 */
-    }
-    .unmute-guide {
-      padding: 12px 24px; background: rgba(0,0,0,0.7); border-radius: 30px;
-      font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 8px;
-      animation: updown 1s infinite alternate; pointer-events: none;
-    }
-    .playing .unmute-guide { display: none; }
-    @keyframes updown { from { transform: translateY(0); } to { transform: translateY(-10px); } }
 
   </style>
 </head>
 <body>
 
 <div id="age-gate">
-  <div class="logo-premium">SHORT<span>XX</span></div>
-  <p style="color: #888;">PREMIUM ADULT FEED</p>
-  <button class="age-btn" onclick="initApp()">18歳以上・入場する</button>
+  <div class="gate-logo">SHORT<span>XX</span></div>
+  <p style="color: #666; font-weight: 600;">PREMIUM ADULT CONTENT</p>
+  <button class="age-btn" onclick="startApp()">18歳以上・入場する</button>
 </div>
 
-<div class="top-nav">
-  <div class="tags-container" id="tag-bar">
-    <div class="tag active" onclick="changeTag(this, '')">おすすめ</div>
-    <div class="tag" onclick="changeTag(this, '素人')">素人</div>
-    <div class="tag" onclick="changeTag(this, '個人撮影')">個人</div>
-    <div class="tag" onclick="changeTag(this, '巨乳')">巨乳</div>
-    <div class="tag" onclick="changeTag(this, '人妻')">人妻</div>
-    <div class="tag" onclick="changeTag(this, '美少女')">美少女</div>
+<div class="nav-header">
+  <div class="tag-scroll">
+    <div class="tag active" onclick="changeCategory(this, '')">おすすめ</div>
+    <div class="tag" onclick="changeCategory(this, '素人')">素人</div>
+    <div class="tag" onclick="changeCategory(this, '個人撮影')">個人</div>
+    <div class="tag" onclick="changeCategory(this, '巨乳')">巨乳</div>
+    <div class="tag" onclick="changeCategory(this, '人妻')">人妻</div>
+    <div class="tag" onclick="changeCategory(this, '美少女')">美少女</div>
   </div>
 </div>
 
 <div id="feed"></div>
 
 <script>
-  const CONFIG = {
-    API_ID: 'HLU1m5DsrpWrznMhuenE',
-    AFFI_ID: 'tigerstiger-990',
-    PROXY: 'https://corsproxy.io/?'
-  };
+  const API_KEY = 'HLU1m5DsrpWrznMhuenE';
+  const AFFI_ID = 'tigerstiger-990';
+  const PROXY = 'https://corsproxy.io/?';
 
   let state = {
     page: 1,
     keyword: '',
     isLoading: false,
     favorites: JSON.parse(localStorage.getItem('favs') || '[]'),
-    scores: JSON.parse(localStorage.getItem('scores') || '{}'), // アルゴリズム用
-    isActivated: false
+    isAppStarted: false
   };
 
-  function initApp() {
-    state.isActivated = true;
+  function startApp() {
+    state.isAppStarted = true;
     localStorage.setItem('age_verified', '1');
     document.getElementById('age-gate').style.display = 'none';
-    loadContent(true);
+    loadVideos(true);
   }
 
-  // 簡易アルゴリズム：タグへの興味をスコアリング
-  function updateScore(keyword, points) {
-    if(!keyword) return;
-    state.scores[keyword] = (state.scores[keyword] || 0) + points;
-    localStorage.setItem('scores', JSON.stringify(state.scores));
-  }
-
-  async function loadContent(reset = false) {
+  async function loadVideos(reset = false) {
     if (state.isLoading) return;
     state.isLoading = true;
     if (reset) { state.page = 1; document.getElementById('feed').innerHTML = ''; }
 
     const offset = (state.page - 1) * 20 + 1;
-    let url = `${CONFIG.PROXY}${encodeURIComponent(`https://api.dmm.com/affiliate/v3/ItemList?api_id=${CONFIG.API_ID}&affiliate_id=${CONFIG.AFFI_ID}&site=FANZA&service=digital&floor=videoa&hits=20&offset=${offset}&sort=rank&output=json`)}`;
-    
-    if (state.keyword) url += encodeURIComponent(`&keyword=${state.keyword}`);
+    const baseUrl = `https://api.dmm.com/affiliate/v3/ItemList?api_id=${API_KEY}&affiliate_id=${AFFI_ID}&site=FANZA&service=digital&floor=videoa&hits=20&offset=${offset}&sort=rank&output=json`;
+    const finalUrl = PROXY + encodeURIComponent(baseUrl + (state.keyword ? `&keyword=${state.keyword}` : ''));
 
     try {
-      const res = await fetch(url);
+      const res = await fetch(finalUrl);
       const data = await res.json();
       const items = data.result.items;
       
-      const fragment = document.createDocumentFragment();
-      items.forEach(item => fragment.appendChild(createCard(item)));
-      document.getElementById('feed').appendChild(fragment);
+      const feed = document.getElementById('feed');
+      items.forEach(item => feed.appendChild(createVideoCard(item)));
       
       state.page++;
       setupObserver();
-    } catch (e) { console.error("API Error"); }
+    } catch (e) { console.error("Load Error"); }
     state.isLoading = false;
   }
 
-  function createCard(item) {
+  function createVideoCard(item) {
     const cid = item.content_id;
     const thumb = item.imageURL.large;
     const actress = item.iteminfo.actress ? item.iteminfo.actress[0].name : "Exclusive";
@@ -217,88 +213,91 @@
     card.className = 'card';
     card.dataset.cid = cid;
     card.innerHTML = `
-      <div class="bg-blur" style="background-image:url(${thumb})"></div>
-      <div class="video-container">
-        <iframe data-src="https://www.dmm.co.jp/litevideo/-/part/=/cid=${cid}/size=476_306/affi_id=${CONFIG.AFFI_ID}/?autoplay=1&mute=1" allow="autoplay"></iframe>
+      <div class="video-shell">
+        <iframe data-src="https://www.dmm.co.jp/litevideo/-/part/=/cid=${cid}/size=476_306/affi_id=${AFFI_ID}/?autoplay=1&mute=0" allow="autoplay; fullscreen"></iframe>
       </div>
-      <div class="interaction-layer" onclick="handleCardTap(this)">
-        <div class="unmute-guide">🔊 タップで音声をON</div>
+      <div class="poster-layer" style="background-image:url(${thumb})" onclick="playVideo(this)">
+        <div class="play-trigger"><div class="play-icon"></div></div>
       </div>
       <div class="side-bar">
-        <div class="action-item" onclick="toggleLike(this, '${cid}')">
-          <div class="btn-circle ${isLiked}">❤︎</div>
-          <span class="action-label">いいね</span>
+        <div class="action-btn" onclick="toggleFav(this, '${cid}')">
+          <div class="icon-box ${isLiked}">❤︎</div>
+          <span style="font-size:10px; font-weight:700;">いいね</span>
         </div>
-        <div class="action-item" onclick="window.open('${item.affiliateURL}', '_blank')">
-          <div class="btn-circle">🛒</div>
-          <span class="action-label">購入</span>
+        <div class="action-btn" onclick="window.open('${item.affiliateURL}', '_blank')">
+          <div class="icon-box">🛒</div>
+          <span style="font-size:10px; font-weight:700;">購入</span>
         </div>
       </div>
-      <div class="ui-overlay">
-        <div class="info-box">
-          <div class="actress-name">@${actress}</div>
-          <div class="video-title">${item.title}</div>
-          <a href="${item.affiliateURL}" class="buy-btn" target="_blank">本編をチェック →</a>
+      <div class="ui-layer">
+        <div class="info-pane">
+          <div class="actress">@${actress}</div>
+          <div class="title">${item.title}</div>
+          <a href="${item.affiliateURL}" class="cta-btn" target="_blank">フルバージョンを見る</a>
         </div>
       </div>
     `;
     return card;
   }
 
-  function handleCardTap(layer) {
-    const card = layer.closest('.card');
+  // 重要：iOSで確実に再生するための処理
+  function playVideo(poster) {
+    const card = poster.closest('.card');
     const iframe = card.querySelector('iframe');
-    layer.classList.add('playing');
     
-    // iOS Safariで音を出すための儀式：一度srcを書き換える
-    if (iframe.src.includes('mute=1')) {
-      iframe.src = iframe.src.replace('mute=1', 'mute=0');
+    // 1. ポスターを消す
+    poster.classList.add('hidden');
+    
+    // 2. iframeにsrcを入れて再生開始
+    if (!iframe.src) {
+      iframe.src = iframe.dataset.src;
     }
-    updateScore(state.keyword, 1); // タップされたらそのジャンルのスコアアップ
   }
 
-  function toggleLike(btn, cid) {
-    const icon = btn.querySelector('.btn-circle');
+  function toggleFav(btn, cid) {
+    const icon = btn.querySelector('.icon-box');
     if (state.favorites.includes(cid)) {
       state.favorites = state.favorites.filter(id => id !== cid);
       icon.classList.remove('active');
     } else {
       state.favorites.push(cid);
       icon.classList.add('active');
-      updateScore(state.keyword, 5); // いいねはスコア大幅アップ
     }
     localStorage.setItem('favs', JSON.stringify(state.favorites));
   }
 
-  function changeTag(el, key) {
+  function changeCategory(el, key) {
     document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
     el.classList.add('active');
     state.keyword = key;
-    loadContent(true);
+    loadVideos(true);
   }
 
   function setupObserver() {
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         const iframe = entry.target.querySelector('iframe');
+        const poster = entry.target.querySelector('.poster-layer');
+        
         if (entry.isIntersecting) {
-          if (!iframe.src) iframe.src = iframe.dataset.src;
+          // 画面内に入っても、勝手にsrcを入れない（タップを待つ）
+          // ただし、既に再生済みの場合は何もしない
         } else {
-          iframe.src = ''; // 画面外に出たらリソース解放
-          entry.target.querySelector('.interaction-layer').classList.remove('playing');
+          // 完全に画面外に出た時だけリセットして重さを解消
+          iframe.src = '';
+          poster.classList.remove('hidden');
         }
       });
-    }, { threshold: 0.6 });
+    }, { threshold: 0.1 });
     document.querySelectorAll('.card').forEach(c => observer.observe(c));
   }
 
-  // 無限スクロール
   document.getElementById('feed').addEventListener('scroll', () => {
     const f = document.getElementById('feed');
-    if (f.scrollHeight - f.scrollTop - f.clientHeight < 1000) loadContent();
+    if (f.scrollHeight - f.scrollTop - f.clientHeight < 800) loadVideos();
   });
 
-  if (localStorage.getItem('age_verified')) initApp();
+  if (localStorage.getItem('age_verified')) startApp();
 </script>
 </body>
 </html>
