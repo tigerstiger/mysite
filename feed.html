@@ -1,613 +1,206 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>SHORTXX PREMIUM</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>SHORTXX</title>
 
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+:root {
+  --primary: #FF2D55;
+  --bg: #000;
+}
 
-  <style>
-    :root {
-      --primary: #FF2D55;
-      --bg: #000;
-      --glass: rgba(255, 255, 255, 0.15);
-    }
+* { margin:0; padding:0; box-sizing:border-box; }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
+body {
+  background: var(--bg);
+  color:#fff;
+  overflow:hidden;
+  height:100vh;
+}
 
-    body {
-      background: var(--bg);
-      color: #fff;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif;
-      overflow: hidden;
-      height: 100dvh;
-      width: 100%;
-      position: fixed;
-    }
+/* フィード */
+#feed {
+  height:100vh;
+  overflow-y:scroll;
+  scroll-snap-type:y mandatory;
+}
 
-    /* 年齢確認 */
-    #age-gate {
-      position: fixed;
-      inset: 0;
-      background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 2000;
-      padding: 40px;
-      text-align: center;
-    }
+.card {
+  height:100vh;
+  position:relative;
+  scroll-snap-align:start;
+}
 
-    .gate-logo {
-      font-size: 48px;
-      font-weight: 900;
-      letter-spacing: -2px;
-      margin-bottom: 10px;
-    }
+/* iframe */
+iframe {
+  width:100%;
+  height:100%;
+  border:none;
+  pointer-events:auto;
+}
 
-    .gate-logo span {
-      color: var(--primary);
-      text-shadow: 0 0 20px rgba(255, 45, 85, 0.4);
-    }
+/* サムネ */
+.poster {
+  position:absolute;
+  inset:0;
+  background-size:cover;
+  background-position:center;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:10;
+}
 
-    .age-btn {
-      width: 100%;
-      max-width: 320px;
-      padding: 20px;
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      border-radius: 16px;
-      font-size: 18px;
-      font-weight: 700;
-      margin-top: 40px;
-      box-shadow: 0 10px 30px rgba(255, 45, 85, 0.4);
-    }
+.poster.hidden {
+  opacity:0;
+  pointer-events:none;
+}
 
-    /* ナビゲーション */
-    .nav-header {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      z-index: 1000;
-      padding-top: env(safe-area-inset-top);
-      background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
-    }
+/* 再生ボタン */
+.play {
+  width:70px;
+  height:70px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.3);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
 
-    .tag-scroll {
-      display: flex;
-      gap: 10px;
-      padding: 15px;
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
-
-    .tag-scroll::-webkit-scrollbar {
-      display: none;
-    }
-
-    .tag {
-      flex-shrink: 0;
-      padding: 8px 18px;
-      background: var(--glass);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-radius: 40px;
-      font-size: 13px;
-      font-weight: 600;
-      border: 1px solid rgba(255,255,255,0.1);
-      color: rgba(255,255,255,0.8);
-    }
-
-    .tag.active {
-      background: var(--primary);
-      border-color: var(--primary);
-      color: #fff;
-    }
-
-    /* フィード */
-    #feed {
-      height: 100dvh;
-      overflow-y: scroll;
-      scroll-snap-type: y mandatory;
-      scrollbar-width: none;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    #feed::-webkit-scrollbar {
-      display: none;
-    }
-
-    .card {
-      height: 100dvh;
-      width: 100%;
-      scroll-snap-align: start;
-      position: relative;
-      background: #000;
-      overflow: hidden;
-    }
-
-    /* 動画表示エリア */
-    .video-shell {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1;
-    }
-
-    iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-      pointer-events: none;
-      background: #000;
-    }
-
-    /* サムネイル */
-    .poster-layer {
-      position: absolute;
-      inset: 0;
-      z-index: 10;
-      background-size: cover;
-      background-position: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: opacity 0.35s ease;
-    }
-
-    .poster-layer.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .poster-layer::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(rgba(0,0,0,0.18), rgba(0,0,0,0.6));
-    }
-
-    /* 再生ボタン */
-    .play-trigger {
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.2);
-      backdrop-filter: blur(15px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 1px solid rgba(255,255,255,0.4);
-      z-index: 11;
-      box-shadow: 0 0 30px rgba(0,0,0,0.3);
-    }
-
-    .play-icon {
-      width: 0;
-      height: 0;
-      border-top: 14px solid transparent;
-      border-bottom: 14px solid transparent;
-      border-left: 22px solid #fff;
-      margin-left: 6px;
-    }
-
-    .stop-badge {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      z-index: 12;
-      background: rgba(0,0,0,0.5);
-      color: #fff;
-      font-size: 12px;
-      font-weight: 700;
-      padding: 8px 12px;
-      border-radius: 999px;
-      backdrop-filter: blur(10px);
-      opacity: 0;
-      transition: opacity 0.2s ease;
-    }
-
-    .card.playing .stop-badge {
-      opacity: 1;
-    }
-
-    /* UIレイヤー */
-    .ui-layer {
-      position: absolute;
-      inset: 0;
-      z-index: 20;
-      pointer-events: none;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      padding: 0 16px calc(30px + env(safe-area-inset-bottom));
-      background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 40%);
-    }
-
-    .ui-layer * {
-      pointer-events: auto;
-    }
-
-    /* サイドバー */
-    .side-bar {
-      position: absolute;
-      right: 12px;
-      bottom: 160px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .action-btn {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      background: none;
-      border: none;
-      color: #fff;
-      cursor: pointer;
-    }
-
-    .icon-box {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      background: var(--glass);
-      backdrop-filter: blur(20px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-      border: 1px solid rgba(255,255,255,0.1);
-      transition: transform 0.2s;
-    }
-
-    .icon-box:active {
-      transform: scale(0.9);
-    }
-
-    .icon-box.liked {
-      background: var(--primary);
-      border-color: var(--primary);
-    }
-
-    .info-pane {
-      max-width: 82%;
-    }
-
-    .info-pane .actress {
-      font-size: 17px;
-      font-weight: 700;
-      color: var(--primary);
-      margin-bottom: 6px;
-    }
-
-    .info-pane .title {
-      font-size: 14px;
-      line-height: 1.5;
-      color: #fff;
-      margin-bottom: 18px;
-      font-weight: 400;
-    }
-
-    .cta-btn {
-      display: inline-block;
-      background: #fff;
-      color: #000;
-      padding: 12px 28px;
-      border-radius: 12px;
-      font-weight: 800;
-      text-decoration: none;
-      font-size: 14px;
-      box-shadow: 0 4px 15px rgba(255,255,255,0.2);
-    }
-
-    .tap-hint {
-      position: absolute;
-      left: 16px;
-      top: 16px;
-      z-index: 12;
-      background: rgba(0,0,0,0.45);
-      color: #fff;
-      font-size: 12px;
-      padding: 8px 12px;
-      border-radius: 999px;
-      backdrop-filter: blur(10px);
-    }
-  </style>
+.play::after {
+  content:'';
+  border-left:20px solid #fff;
+  border-top:12px solid transparent;
+  border-bottom:12px solid transparent;
+}
+</style>
 </head>
+
 <body>
-
-<div id="age-gate">
-  <div class="gate-logo">SHORT<span>XX</span></div>
-  <p style="color: #888; letter-spacing: 2px; font-size: 12px;">PREMIUM SHORT FEED</p>
-  <button class="age-btn" onclick="startExperience()">18歳以上・入場する</button>
-</div>
-
-<div class="nav-header">
-  <div class="tag-scroll">
-    <div class="tag active" onclick="changeTag(this, '')">おすすめ</div>
-    <div class="tag" onclick="changeTag(this, '素人')">素人</div>
-    <div class="tag" onclick="changeTag(this, '巨乳')">巨乳</div>
-    <div class="tag" onclick="changeTag(this, '人妻')">人妻</div>
-    <div class="tag" onclick="changeTag(this, '美少女')">美少女</div>
-  </div>
-</div>
 
 <div id="feed"></div>
 
 <script>
-  const CONFIG = {
-    API_KEY: 'HLU1m5DsrpWrznMhuenE',
-    AFFI_ID: 'tigerstiger-990',
-    PROXY: 'https://corsproxy.io/?'
-  };
+const CONFIG = {
+  API_KEY: 'HLU1m5DsrpWrznMhuenE',
+  AFFI_ID: 'tigerstiger-990',
+  PROXY: 'https://corsproxy.io/?'
+};
 
-  let state = {
-    page: 1,
-    keyword: '',
-    isLoading: false,
-    favorites: JSON.parse(localStorage.getItem('fav_v2') || '[]'),
-    isAppStarted: false,
-    observers: []
-  };
+let state = {
+  page:1,
+  loading:false
+};
 
-  function startExperience() {
-    state.isAppStarted = true;
-    localStorage.setItem('age_verified_v2', '1');
-    document.getElementById('age-gate').style.display = 'none';
-    loadContent(true);
-  }
+/* URL生成 */
+function buildURL(cid){
+  return `https://www.dmm.co.jp/litevideo/-/part/=/cid=${cid}/size=476_306/affi_id=${CONFIG.AFFI_ID}/?autoplay=1&mute=1&playsinline=1`;
+}
 
-  function buildVideoURL(cid) {
-    return `https://www.dmm.co.jp/litevideo/-/part/=/cid=${cid}/size=476_306/affi_id=${CONFIG.AFFI_ID}/?autoplay=1&mute=1&playsinline=1`;
-  }
+/* カード生成 */
+function createCard(item){
+  const cid = item.content_id;
+  const thumb = item.imageURL.large;
 
-  async function loadContent(reset = false) {
-    if (state.isLoading) return;
-    state.isLoading = true;
+  const div = document.createElement('div');
+  div.className = 'card';
+  div.dataset.url = buildURL(cid);
+  div.dataset.playing = '0';
 
-    if (reset) {
-      state.page = 1;
-      document.getElementById('feed').innerHTML = '';
-      clearObservers();
-    }
+  div.innerHTML = `
+    <iframe></iframe>
+    <div class="poster" style="background-image:url(${thumb})">
+      <div class="play"></div>
+    </div>
+  `;
 
-    const offset = (state.page - 1) * 20 + 1;
-    const baseUrl = `https://api.dmm.com/affiliate/v3/ItemList?api_id=${CONFIG.API_KEY}&affiliate_id=${CONFIG.AFFI_ID}&site=FANZA&service=digital&floor=videoa&hits=20&offset=${offset}&sort=rank&output=json`;
-    const finalUrl = CONFIG.PROXY + encodeURIComponent(baseUrl + (state.keyword ? `&keyword=${state.keyword}` : ''));
+  const poster = div.querySelector('.poster');
+  const iframe = div.querySelector('iframe');
 
-    try {
-      const res = await fetch(finalUrl);
-      const data = await res.json();
-      const items = data.result.items || [];
+  poster.addEventListener('click', () => {
 
-      const feed = document.getElementById('feed');
-      items.forEach(item => feed.appendChild(createCard(item)));
+    if(div.dataset.playing === '0'){
+      stopAll(); // 他停止
 
-      state.page++;
-      setupIntersection();
-    } catch (e) {
-      console.error("Error loading items", e);
-    }
+      iframe.src = div.dataset.url;
+      poster.classList.add('hidden');
+      div.dataset.playing = '1';
 
-    state.isLoading = false;
-  }
-
-  function createCard(item) {
-    const cid = item.content_id;
-    const thumb = item.imageURL?.large || item.imageURL?.list || '';
-    const actress = item.iteminfo?.actress?.length ? item.iteminfo.actress[0].name : "Exclusive";
-    const isLiked = state.favorites.includes(cid) ? 'liked' : '';
-    const videoURL = buildVideoURL(cid);
-
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.dataset.cid = cid;
-    card.dataset.videoUrl = videoURL;
-    card.dataset.playing = '0';
-
-    card.innerHTML = `
-      <div class="video-shell">
-        <iframe data-src="${videoURL}"></iframe>
-      </div>
-
-      <div class="poster-layer" style="background-image:url(${thumb})" onclick="togglePlayback(this)">
-        <div class="play-trigger"><div class="play-icon"></div></div>
-      </div>
-
-      <div class="tap-hint">タップで再生 / もう一度タップで停止</div>
-      <div class="stop-badge">停止中</div>
-
-      <div class="side-bar">
-        <div class="action-btn" onclick="toggleFavorite(this, '${cid}')">
-          <div class="icon-box ${isLiked}">❤︎</div>
-          <span style="font-size:10px; font-weight:700; color:#ccc;">いいね</span>
-        </div>
-        <div class="action-btn" onclick="window.open('${item.affiliateURL}', '_blank')">
-          <div class="icon-box">🛒</div>
-          <span style="font-size:10px; font-weight:700; color:#ccc;">購入</span>
-        </div>
-      </div>
-
-      <div class="ui-layer">
-        <div class="info-pane">
-          <div class="actress">@${actress}</div>
-          <div class="title">${item.title || ''}</div>
-          <a href="${item.affiliateURL}" class="cta-btn" target="_blank">本編をチェック</a>
-        </div>
-      </div>
-    `;
-
-    return card;
-  }
-
-  function togglePlayback(poster) {
-    const card = poster.closest('.card');
-    const iframe = card.querySelector('iframe');
-    const isPlaying = card.dataset.playing === '1';
-
-    if (isPlaying) {
-      stopCard(card, iframe, poster);
     } else {
-      startCard(card, iframe, poster);
+      iframe.src = '';
+      poster.classList.remove('hidden');
+      div.dataset.playing = '0';
     }
-  }
 
-  function startCard(card, iframe, poster) {
-    // まず一旦停止状態を解除
-    card.dataset.playing = '1';
-    card.classList.add('playing');
+  });
 
-    // ポスターを隠す
-    poster.classList.add('hidden');
+  return div;
+}
 
-    // src をセットしてロード開始
-    if (!iframe.src) {
-      iframe.src = iframe.dataset.src;
-    }
-  }
+/* 全停止 */
+function stopAll(){
+  document.querySelectorAll('.card').forEach(c=>{
+    const iframe = c.querySelector('iframe');
+    const poster = c.querySelector('.poster');
 
-  function stopCard(card, iframe, poster) {
-    // 再生を止めるため、iframeを破棄して読み込みを解除
     iframe.src = '';
-    card.dataset.playing = '0';
-    card.classList.remove('playing');
-
-    // ポスターを戻す
     poster.classList.remove('hidden');
-  }
+    c.dataset.playing = '0';
+  });
+}
 
-  function stopAllCards(exceptCard = null) {
-    document.querySelectorAll('.card').forEach(card => {
-      if (exceptCard && card === exceptCard) return;
+/* データ取得 */
+async function load(){
+  if(state.loading) return;
+  state.loading = true;
+
+  const offset = (state.page-1)*20+1;
+
+  const url = CONFIG.PROXY + encodeURIComponent(
+    `https://api.dmm.com/affiliate/v3/ItemList?api_id=${CONFIG.API_KEY}&affiliate_id=${CONFIG.AFFI_ID}&site=FANZA&service=digital&floor=videoa&hits=20&offset=${offset}`
+  );
+
+  const res = await fetch(url);
+  const data = await res.json();
+
+  const items = data.result.items;
+
+  const feed = document.getElementById('feed');
+
+  items.forEach(i=>{
+    feed.appendChild(createCard(i));
+  });
+
+  state.page++;
+  state.loading = false;
+}
+
+/* スクロールで停止 */
+document.getElementById('feed').addEventListener('scroll', ()=>{
+  document.querySelectorAll('.card').forEach(card=>{
+    const rect = card.getBoundingClientRect();
+
+    if(rect.top > window.innerHeight || rect.bottom < 0){
       const iframe = card.querySelector('iframe');
-      const poster = card.querySelector('.poster-layer');
-      if (card.dataset.playing === '1') {
-        iframe.src = '';
-        card.dataset.playing = '0';
-        card.classList.remove('playing');
-        poster.classList.remove('hidden');
-      }
-    });
-  }
+      const poster = card.querySelector('.poster');
 
-  function toggleFavorite(btn, cid) {
-    const icon = btn.querySelector('.icon-box');
-
-    if (state.favorites.includes(cid)) {
-      state.favorites = state.favorites.filter(id => id !== cid);
-      icon.classList.remove('liked');
-    } else {
-      state.favorites.push(cid);
-      icon.classList.add('liked');
-    }
-
-    localStorage.setItem('fav_v2', JSON.stringify(state.favorites));
-  }
-
-  function changeTag(el, key) {
-    document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
-    el.classList.add('active');
-    state.keyword = key;
-    loadContent(true);
-  }
-
-  function setupIntersection() {
-    clearObservers();
-
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        const card = entry.target;
-        const iframe = card.querySelector('iframe');
-        const poster = card.querySelector('.poster-layer');
-
-        if (!entry.isIntersecting) {
-          // 画面外は完全停止
-          if (card.dataset.playing === '1') {
-            iframe.src = '';
-            card.dataset.playing = '0';
-            card.classList.remove('playing');
-            poster.classList.remove('hidden');
-          }
-        }
-      });
-    }, { threshold: 0.15 });
-
-    document.querySelectorAll('.card').forEach(c => {
-      observer.observe(c);
-    });
-
-    state.observers.push(observer);
-  }
-
-  function clearObservers() {
-    state.observers.forEach(obs => obs.disconnect());
-    state.observers = [];
-  }
-
-  // 無限スクロール
-  document.getElementById('feed').addEventListener('scroll', () => {
-    const f = document.getElementById('feed');
-    if (f.scrollHeight - f.scrollTop - f.clientHeight < 1000) {
-      loadContent();
+      iframe.src = '';
+      poster.classList.remove('hidden');
+      card.dataset.playing = '0';
     }
   });
 
-  // 画面をスワイプしたとき、見えていない動画を止める
-  document.getElementById('feed').addEventListener('scrollend', () => {
-    const cards = document.querySelectorAll('.card');
-    cards.forEach(card => {
-      const rect = card.getBoundingClientRect();
-      const inView = rect.top < window.innerHeight * 0.85 && rect.bottom > window.innerHeight * 0.15;
-
-      if (!inView && card.dataset.playing === '1') {
-        const iframe = card.querySelector('iframe');
-        const poster = card.querySelector('.poster-layer');
-        iframe.src = '';
-        card.dataset.playing = '0';
-        card.classList.remove('playing');
-        poster.classList.remove('hidden');
-      }
-    });
-  });
-
-  // iOS Safari向け fallback
-  document.getElementById('feed').addEventListener('scroll', () => {
-    const cards = document.querySelectorAll('.card');
-    cards.forEach(card => {
-      const rect = card.getBoundingClientRect();
-      const inView = rect.top < window.innerHeight * 0.85 && rect.bottom > window.innerHeight * 0.15;
-
-      if (!inView && card.dataset.playing === '1') {
-        const iframe = card.querySelector('iframe');
-        const poster = card.querySelector('.poster-layer');
-        iframe.src = '';
-        card.dataset.playing = '0';
-        card.classList.remove('playing');
-        poster.classList.remove('hidden');
-      }
-    });
-  }, { passive: true });
-
-  // 最初の認証済み処理
-  if (localStorage.getItem('age_verified_v2')) {
-    document.getElementById('age-gate').style.display = 'none';
-    state.isAppStarted = true;
-    loadContent(true);
+  const f = document.getElementById('feed');
+  if(f.scrollHeight - f.scrollTop - f.clientHeight < 800){
+    load();
   }
+});
+
+/* 初期ロード */
+load();
 </script>
+
 </body>
 </html>
