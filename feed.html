@@ -60,7 +60,6 @@
     .card {
       height: 100dvh; scroll-snap-align: start;
       position: relative; background: #0d0d0d;
-      display: flex; align-items: center; justify-content: center;
       overflow: hidden;
     }
 
@@ -70,32 +69,19 @@
     }
     .card-thumb img {
       width: 100%; height: 100%; object-fit: cover;
-      opacity: 0.5;
+      opacity: 0.4;
     }
 
-    .video-wrap {
+    .iframe-wrap {
       position: absolute; inset: 0;
       display: flex; align-items: center; justify-content: center;
+      z-index: 2;
     }
-    .video-wrap video {
-      width: 100%; height: 100%; object-fit: cover;
-    }
-
-    .play-btn {
-      position: absolute;
-      width: 64px; height: 64px; border-radius: 50%;
-      background: rgba(255,255,255,0.15);
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; z-index: 3;
-      transition: opacity 0.3s;
-    }
-    .play-btn.hidden { opacity: 0; pointer-events: none; }
-    .play-triangle {
-      width: 0; height: 0;
-      border-top: 13px solid transparent;
-      border-bottom: 13px solid transparent;
-      border-left: 24px solid rgba(255,255,255,0.9);
-      margin-left: 5px;
+    .iframe-wrap iframe {
+      width: 100%;
+      height: 60%;
+      border: none;
+      background: transparent;
     }
 
     .side-actions {
@@ -119,7 +105,7 @@
     .overlay {
       position: absolute; bottom: 0; left: 0; right: 0;
       padding: 20px 16px 40px;
-      background: linear-gradient(transparent, rgba(0,0,0,0.92));
+      background: linear-gradient(transparent, rgba(0,0,0,0.95));
       z-index: 4;
     }
     .badge {
@@ -139,15 +125,6 @@
       color: #fff; border: none; border-radius: 10px;
       font-size: 15px; font-weight: 500; cursor: pointer;
       text-decoration: none; display: block; text-align: center;
-    }
-
-    .progress-bar {
-      position: absolute; bottom: 0; left: 0; right: 0;
-      height: 2px; background: rgba(255,255,255,0.2); z-index: 5;
-    }
-    .progress-fill {
-      height: 100%; width: 0%; background: #E24B4A;
-      transition: width 0.1s linear;
     }
 
     .loading-screen {
@@ -241,6 +218,7 @@
       const res = await fetch(url);
       const data = await res.json();
       const items = data?.result?.items;
+
       if (!items || items.length === 0) {
         feed.innerHTML = '<div class="loading-screen">作品が見つかりませんでした。</div>';
         return;
@@ -250,31 +228,28 @@
         const title = item.title || '';
         const actress = item.iteminfo?.actress?.[0]?.name || '女優情報なし';
         const thumb = item.imageURL?.large || item.imageURL?.list || '';
-        const sampleMovie = item.sampleMovieURL?.size_720_480 || item.sampleMovieURL?.size_476_306 || '';
-        const productUrl = item.URL || '';
-        const link = productUrl
-          ? `https://al.fanza.co.jp/?lurl=${encodeURIComponent(productUrl)}&af_id=tigerstiger-002&ch=search_link&ch_id=link`
-          : '#';
+        const cid = item.content_id || '';
+        const affiliateUrl = item.affiliateURL || '#';
         const badge = BADGES[i % BADGES.length];
+        const iframeSrc = cid
+          ? `https://www.dmm.co.jp/litevideo/-/part/=/cid=${cid}/size=476_306/affi_id=tigerstiger-990/`
+          : '';
 
         return `
-        <div class="card" data-index="${i}">
+        <div class="card">
           <div class="card-thumb">
             ${thumb ? `<img src="${thumb}" alt="${actress}">` : ''}
           </div>
-          ${sampleMovie ? `
-          <div class="video-wrap">
-            <video src="${sampleMovie}" playsinline muted loop preload="none"></video>
+          ${iframeSrc ? `
+          <div class="iframe-wrap">
+            <iframe src="${iframeSrc}" allowfullscreen scrolling="no"></iframe>
           </div>` : ''}
-          <div class="play-btn" onclick="togglePlay(this)">
-            <div class="play-triangle"></div>
-          </div>
           <div class="side-actions">
             <div class="side-btn" onclick="toggleLike(this)">
               <div class="side-icon">♡</div>
               <span class="side-label">いいね</span>
             </div>
-            <div class="side-btn" onclick="skipCard(${i})">
+            <div class="side-btn" onclick="skipNext(this)">
               <div class="side-icon">↷</div>
               <span class="side-label">スキップ</span>
             </div>
@@ -283,61 +258,20 @@
             <span class="badge">${badge}</span>
             <div class="actress">${actress}</div>
             <div class="title">${title}</div>
-            <a class="cta" href="${link}" target="_blank">続きを見る →</a>
+            <a class="cta" href="${affiliateUrl}" target="_blank">続きを見る →</a>
           </div>
-          <div class="progress-bar"><div class="progress-fill"></div></div>
         </div>`;
       }).join('');
-
-      setupIntersection();
 
     } catch (e) {
       feed.innerHTML = '<div class="loading-screen">データの取得に失敗しました。</div>';
     }
   }
 
-  function togglePlay(btn) {
+  function skipNext(btn) {
     const card = btn.closest('.card');
-    const video = card.querySelector('video');
-    if (!video) return;
-    if (video.paused) {
-      video.play();
-      btn.classList.add('hidden');
-    } else {
-      video.pause();
-      btn.classList.remove('hidden');
-    }
-  }
-
-  function skipCard(index) {
-    const cards = document.querySelectorAll('.card');
-    if (cards[index + 1]) {
-      cards[index + 1].scrollIntoView({ behavior: 'smooth' });
-    }
-  }
-
-  function setupIntersection() {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        const video = entry.target.querySelector('video');
-        const playBtn = entry.target.querySelector('.play-btn');
-        if (entry.isIntersecting) {
-          if (video) {
-            video.play().then(() => {
-              if (playBtn) playBtn.classList.add('hidden');
-            }).catch(() => {});
-          }
-        } else {
-          if (video) {
-            video.pause();
-            video.currentTime = 0;
-            if (playBtn) playBtn.classList.remove('hidden');
-          }
-        }
-      });
-    }, { threshold: 0.7 });
-
-    document.querySelectorAll('.card').forEach(card => observer.observe(card));
+    const next = card.nextElementSibling;
+    if (next) next.scrollIntoView({ behavior: 'smooth' });
   }
 
   loadItems();
