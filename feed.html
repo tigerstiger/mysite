@@ -4,149 +4,328 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>SHORTXX PREMIUM</title>
-  
+
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
   <style>
     :root {
-      --primary: #FF2D55; /* TikTok風レッド */
+      --primary: #FF2D55;
       --bg: #000;
       --glass: rgba(255, 255, 255, 0.15);
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    
-    body { 
-      background: var(--bg); 
-      color: #fff; 
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: var(--bg);
+      color: #fff;
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif;
-      overflow: hidden; 
-      height: 100dvh; 
+      overflow: hidden;
+      height: 100dvh;
       width: 100%;
       position: fixed;
     }
 
-    /* 年齢確認（高級感重視） */
+    /* 年齢確認 */
     #age-gate {
-      position: fixed; inset: 0; background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      z-index: 2000; padding: 40px; text-align: center;
-    }
-    .gate-logo { font-size: 48px; font-weight: 900; letter-spacing: -2px; margin-bottom: 10px; }
-    .gate-logo span { color: var(--primary); text-shadow: 0 0 20px rgba(255,45,85,0.4); }
-    .age-btn {
-      width: 100%; max-width: 320px; padding: 20px;
-      background: var(--primary); color: #fff; border: none;
-      border-radius: 16px; font-size: 18px; font-weight: 700;
-      margin-top: 40px; box-shadow: 0 10px 30px rgba(255,45,85,0.4);
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 40px;
+      text-align: center;
     }
 
-    /* ナビゲーション（上部） */
+    .gate-logo {
+      font-size: 48px;
+      font-weight: 900;
+      letter-spacing: -2px;
+      margin-bottom: 10px;
+    }
+
+    .gate-logo span {
+      color: var(--primary);
+      text-shadow: 0 0 20px rgba(255, 45, 85, 0.4);
+    }
+
+    .age-btn {
+      width: 100%;
+      max-width: 320px;
+      padding: 20px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 16px;
+      font-size: 18px;
+      font-weight: 700;
+      margin-top: 40px;
+      box-shadow: 0 10px 30px rgba(255, 45, 85, 0.4);
+    }
+
+    /* ナビゲーション */
     .nav-header {
-      position: fixed; top: 0; width: 100%; z-index: 1000;
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 1000;
       padding-top: env(safe-area-inset-top);
       background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
     }
+
     .tag-scroll {
-      display: flex; gap: 10px; padding: 15px; overflow-x: auto; scrollbar-width: none;
+      display: flex;
+      gap: 10px;
+      padding: 15px;
+      overflow-x: auto;
+      scrollbar-width: none;
     }
-    .tag-scroll::-webkit-scrollbar { display: none; }
+
+    .tag-scroll::-webkit-scrollbar {
+      display: none;
+    }
+
     .tag {
-      flex-shrink: 0; padding: 8px 18px; background: var(--glass);
-      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-      border-radius: 40px; font-size: 13px; font-weight: 600; border: 1px solid rgba(255,255,255,0.1);
+      flex-shrink: 0;
+      padding: 8px 18px;
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 40px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid rgba(255,255,255,0.1);
       color: rgba(255,255,255,0.8);
     }
-    .tag.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+    .tag.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
 
     /* フィード */
     #feed {
-      height: 100dvh; overflow-y: scroll; scroll-snap-type: y mandatory;
-      scrollbar-width: none; -webkit-overflow-scrolling: touch;
+      height: 100dvh;
+      overflow-y: scroll;
+      scroll-snap-type: y mandatory;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
     }
-    #feed::-webkit-scrollbar { display: none; }
+
+    #feed::-webkit-scrollbar {
+      display: none;
+    }
 
     .card {
-      height: 100dvh; width: 100%; scroll-snap-align: start;
-      position: relative; background: #000; overflow: hidden;
+      height: 100dvh;
+      width: 100%;
+      scroll-snap-align: start;
+      position: relative;
+      background: #000;
+      overflow: hidden;
     }
 
-    /* ビデオ表示エリア */
+    /* 動画表示エリア */
     .video-shell {
-      position: absolute; inset: 0;
-      display: flex; align-items: center; justify-content: center;
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       z-index: 1;
     }
-    iframe { width: 100%; height: 100%; border: none; pointer-events: none; }
 
-    /* サムネイル（ポスター） */
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      pointer-events: none;
+      background: #000;
+    }
+
+    /* サムネイル */
     .poster-layer {
-      position: absolute; inset: 0; z-index: 10;
-      background-size: cover; background-position: center;
-      display: flex; align-items: center; justify-content: center;
-      transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .poster-layer.hidden { opacity: 0; pointer-events: none; }
-    
-    /* 背景をぼかす（動画との馴染みを良くする） */
-    .poster-layer::before {
-      content: ''; position: absolute; inset: 0; 
-      background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.6));
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.35s ease;
     }
 
-    /* 再生ボタン（高級感重視） */
+    .poster-layer.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .poster-layer::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(rgba(0,0,0,0.18), rgba(0,0,0,0.6));
+    }
+
+    /* 再生ボタン */
     .play-trigger {
-      width: 72px; height: 72px; border-radius: 50%;
-      background: rgba(255,255,255,0.2); backdrop-filter: blur(15px);
-      display: flex; align-items: center; justify-content: center;
-      border: 1px solid rgba(255,255,255,0.4); z-index: 11;
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(15px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255,255,255,0.4);
+      z-index: 11;
       box-shadow: 0 0 30px rgba(0,0,0,0.3);
     }
+
     .play-icon {
-      width: 0; height: 0; border-top: 14px solid transparent;
-      border-bottom: 14px solid transparent; border-left: 22px solid #fff;
+      width: 0;
+      height: 0;
+      border-top: 14px solid transparent;
+      border-bottom: 14px solid transparent;
+      border-left: 22px solid #fff;
       margin-left: 6px;
+    }
+
+    .stop-badge {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      z-index: 12;
+      background: rgba(0,0,0,0.5);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 8px 12px;
+      border-radius: 999px;
+      backdrop-filter: blur(10px);
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .card.playing .stop-badge {
+      opacity: 1;
     }
 
     /* UIレイヤー */
     .ui-layer {
-      position: absolute; inset: 0; z-index: 20;
+      position: absolute;
+      inset: 0;
+      z-index: 20;
       pointer-events: none;
-      display: flex; flex-direction: column; justify-content: flex-end;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
       padding: 0 16px calc(30px + env(safe-area-inset-bottom));
       background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 40%);
     }
-    .ui-layer * { pointer-events: auto; }
+
+    .ui-layer * {
+      pointer-events: auto;
+    }
 
     /* サイドバー */
     .side-bar {
-      position: absolute; right: 12px; bottom: 160px;
-      display: flex; flex-direction: column; gap: 20px;
+      position: absolute;
+      right: 12px;
+      bottom: 160px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
     }
-    .action-btn { 
-      display: flex; flex-direction: column; align-items: center; gap: 6px; 
-      background: none; border: none; color: #fff; cursor: pointer;
+
+    .action-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      background: none;
+      border: none;
+      color: #fff;
+      cursor: pointer;
     }
+
     .icon-box {
-      width: 50px; height: 50px; border-radius: 50%;
-      background: var(--glass); backdrop-filter: blur(20px);
-      display: flex; align-items: center; justify-content: center; font-size: 22px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
       border: 1px solid rgba(255,255,255,0.1);
       transition: transform 0.2s;
     }
-    .icon-box:active { transform: scale(0.9); }
-    .icon-box.liked { background: var(--primary); border-color: var(--primary); }
 
-    .info-pane { max-width: 82%; }
-    .info-pane .actress { font-size: 17px; font-weight: 700; color: var(--primary); margin-bottom: 6px; }
-    .info-pane .title { font-size: 14px; line-height: 1.5; color: #fff; margin-bottom: 18px; font-weight: 400; }
+    .icon-box:active {
+      transform: scale(0.9);
+    }
+
+    .icon-box.liked {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .info-pane {
+      max-width: 82%;
+    }
+
+    .info-pane .actress {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 6px;
+    }
+
+    .info-pane .title {
+      font-size: 14px;
+      line-height: 1.5;
+      color: #fff;
+      margin-bottom: 18px;
+      font-weight: 400;
+    }
+
     .cta-btn {
-      display: inline-block; background: #fff; color: #000; padding: 12px 28px;
-      border-radius: 12px; font-weight: 800; text-decoration: none; font-size: 14px;
+      display: inline-block;
+      background: #fff;
+      color: #000;
+      padding: 12px 28px;
+      border-radius: 12px;
+      font-weight: 800;
+      text-decoration: none;
+      font-size: 14px;
       box-shadow: 0 4px 15px rgba(255,255,255,0.2);
     }
 
+    .tap-hint {
+      position: absolute;
+      left: 16px;
+      top: 16px;
+      z-index: 12;
+      background: rgba(0,0,0,0.45);
+      color: #fff;
+      font-size: 12px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      backdrop-filter: blur(10px);
+    }
   </style>
 </head>
 <body>
@@ -181,7 +360,8 @@
     keyword: '',
     isLoading: false,
     favorites: JSON.parse(localStorage.getItem('fav_v2') || '[]'),
-    isAppStarted: false
+    isAppStarted: false,
+    observers: []
   };
 
   function startExperience() {
@@ -191,10 +371,19 @@
     loadContent(true);
   }
 
+  function buildVideoURL(cid) {
+    return `https://www.dmm.co.jp/litevideo/-/part/=/cid=${cid}/size=476_306/affi_id=${CONFIG.AFFI_ID}/?autoplay=1&mute=1&playsinline=1`;
+  }
+
   async function loadContent(reset = false) {
     if (state.isLoading) return;
     state.isLoading = true;
-    if (reset) { state.page = 1; document.getElementById('feed').innerHTML = ''; }
+
+    if (reset) {
+      state.page = 1;
+      document.getElementById('feed').innerHTML = '';
+      clearObservers();
+    }
 
     const offset = (state.page - 1) * 20 + 1;
     const baseUrl = `https://api.dmm.com/affiliate/v3/ItemList?api_id=${CONFIG.API_KEY}&affiliate_id=${CONFIG.AFFI_ID}&site=FANZA&service=digital&floor=videoa&hits=20&offset=${offset}&sort=rank&output=json`;
@@ -203,33 +392,45 @@
     try {
       const res = await fetch(finalUrl);
       const data = await res.json();
-      const items = data.result.items;
-      
+      const items = data.result.items || [];
+
       const feed = document.getElementById('feed');
       items.forEach(item => feed.appendChild(createCard(item)));
-      
+
       state.page++;
       setupIntersection();
-    } catch (e) { console.error("Error loading items"); }
+    } catch (e) {
+      console.error("Error loading items", e);
+    }
+
     state.isLoading = false;
   }
 
   function createCard(item) {
     const cid = item.content_id;
-    const thumb = item.imageURL.large || item.imageURL.list;
-    const actress = item.iteminfo.actress ? item.iteminfo.actress[0].name : "Exclusive";
+    const thumb = item.imageURL?.large || item.imageURL?.list || '';
+    const actress = item.iteminfo?.actress?.length ? item.iteminfo.actress[0].name : "Exclusive";
     const isLiked = state.favorites.includes(cid) ? 'liked' : '';
+    const videoURL = buildVideoURL(cid);
 
     const card = document.createElement('div');
     card.className = 'card';
     card.dataset.cid = cid;
+    card.dataset.videoUrl = videoURL;
+    card.dataset.playing = '0';
+
     card.innerHTML = `
       <div class="video-shell">
-        <iframe data-src="https://www.dmm.co.jp/litevideo/-/part/=/cid=${cid}/size=476_306/affi_id=${CONFIG.AFFI_ID}/?autoplay=1&mute=0" allow="autoplay; fullscreen"></iframe>
+        <iframe data-src="${videoURL}"></iframe>
       </div>
-      <div class="poster-layer" style="background-image:url(${thumb})" onclick="handlePlay(this)">
+
+      <div class="poster-layer" style="background-image:url(${thumb})" onclick="togglePlayback(this)">
         <div class="play-trigger"><div class="play-icon"></div></div>
       </div>
+
+      <div class="tap-hint">タップで再生 / もう一度タップで停止</div>
+      <div class="stop-badge">停止中</div>
+
       <div class="side-bar">
         <div class="action-btn" onclick="toggleFavorite(this, '${cid}')">
           <div class="icon-box ${isLiked}">❤︎</div>
@@ -240,33 +441,72 @@
           <span style="font-size:10px; font-weight:700; color:#ccc;">購入</span>
         </div>
       </div>
+
       <div class="ui-layer">
         <div class="info-pane">
           <div class="actress">@${actress}</div>
-          <div class="title">${item.title}</div>
+          <div class="title">${item.title || ''}</div>
           <a href="${item.affiliateURL}" class="cta-btn" target="_blank">本編をチェック</a>
         </div>
       </div>
     `;
+
     return card;
   }
 
-  // タップで動画を再生
-  function handlePlay(poster) {
+  function togglePlayback(poster) {
     const card = poster.closest('.card');
     const iframe = card.querySelector('iframe');
-    
-    // 1. サムネイルを消す
+    const isPlaying = card.dataset.playing === '1';
+
+    if (isPlaying) {
+      stopCard(card, iframe, poster);
+    } else {
+      startCard(card, iframe, poster);
+    }
+  }
+
+  function startCard(card, iframe, poster) {
+    // まず一旦停止状態を解除
+    card.dataset.playing = '1';
+    card.classList.add('playing');
+
+    // ポスターを隠す
     poster.classList.add('hidden');
-    
-    // 2. iframeに初めてURLを入れる（これで再生開始）
+
+    // src をセットしてロード開始
     if (!iframe.src) {
       iframe.src = iframe.dataset.src;
     }
   }
 
+  function stopCard(card, iframe, poster) {
+    // 再生を止めるため、iframeを破棄して読み込みを解除
+    iframe.src = '';
+    card.dataset.playing = '0';
+    card.classList.remove('playing');
+
+    // ポスターを戻す
+    poster.classList.remove('hidden');
+  }
+
+  function stopAllCards(exceptCard = null) {
+    document.querySelectorAll('.card').forEach(card => {
+      if (exceptCard && card === exceptCard) return;
+      const iframe = card.querySelector('iframe');
+      const poster = card.querySelector('.poster-layer');
+      if (card.dataset.playing === '1') {
+        iframe.src = '';
+        card.dataset.playing = '0';
+        card.classList.remove('playing');
+        poster.classList.remove('hidden');
+      }
+    });
+  }
+
   function toggleFavorite(btn, cid) {
     const icon = btn.querySelector('.icon-box');
+
     if (state.favorites.includes(cid)) {
       state.favorites = state.favorites.filter(id => id !== cid);
       icon.classList.remove('liked');
@@ -274,6 +514,7 @@
       state.favorites.push(cid);
       icon.classList.add('liked');
     }
+
     localStorage.setItem('fav_v2', JSON.stringify(state.favorites));
   }
 
@@ -285,27 +526,83 @@
   }
 
   function setupIntersection() {
+    clearObservers();
+
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
-        const iframe = entry.target.querySelector('iframe');
-        const poster = entry.target.querySelector('.poster-layer');
-        
+        const card = entry.target;
+        const iframe = card.querySelector('iframe');
+        const poster = card.querySelector('.poster-layer');
+
         if (!entry.isIntersecting) {
-          // 画面外に出た動画は停止＆サムネイルを復活（iPhoneの負荷軽減）
-          iframe.src = '';
-          poster.classList.remove('hidden');
+          // 画面外は完全停止
+          if (card.dataset.playing === '1') {
+            iframe.src = '';
+            card.dataset.playing = '0';
+            card.classList.remove('playing');
+            poster.classList.remove('hidden');
+          }
         }
       });
-    }, { threshold: 0.1 });
-    document.querySelectorAll('.card').forEach(c => observer.observe(c));
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll('.card').forEach(c => {
+      observer.observe(c);
+    });
+
+    state.observers.push(observer);
+  }
+
+  function clearObservers() {
+    state.observers.forEach(obs => obs.disconnect());
+    state.observers = [];
   }
 
   // 無限スクロール
   document.getElementById('feed').addEventListener('scroll', () => {
     const f = document.getElementById('feed');
-    if (f.scrollHeight - f.scrollTop - f.clientHeight < 1000) loadContent();
+    if (f.scrollHeight - f.scrollTop - f.clientHeight < 1000) {
+      loadContent();
+    }
   });
 
+  // 画面をスワイプしたとき、見えていない動画を止める
+  document.getElementById('feed').addEventListener('scrollend', () => {
+    const cards = document.querySelectorAll('.card');
+    cards.forEach(card => {
+      const rect = card.getBoundingClientRect();
+      const inView = rect.top < window.innerHeight * 0.85 && rect.bottom > window.innerHeight * 0.15;
+
+      if (!inView && card.dataset.playing === '1') {
+        const iframe = card.querySelector('iframe');
+        const poster = card.querySelector('.poster-layer');
+        iframe.src = '';
+        card.dataset.playing = '0';
+        card.classList.remove('playing');
+        poster.classList.remove('hidden');
+      }
+    });
+  });
+
+  // iOS Safari向け fallback
+  document.getElementById('feed').addEventListener('scroll', () => {
+    const cards = document.querySelectorAll('.card');
+    cards.forEach(card => {
+      const rect = card.getBoundingClientRect();
+      const inView = rect.top < window.innerHeight * 0.85 && rect.bottom > window.innerHeight * 0.15;
+
+      if (!inView && card.dataset.playing === '1') {
+        const iframe = card.querySelector('iframe');
+        const poster = card.querySelector('.poster-layer');
+        iframe.src = '';
+        card.dataset.playing = '0';
+        card.classList.remove('playing');
+        poster.classList.remove('hidden');
+      }
+    });
+  }, { passive: true });
+
+  // 最初の認証済み処理
   if (localStorage.getItem('age_verified_v2')) {
     document.getElementById('age-gate').style.display = 'none';
     state.isAppStarted = true;
