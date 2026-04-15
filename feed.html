@@ -65,7 +65,6 @@
 
     .card-thumb {
       position: absolute; inset: 0;
-      display: flex; align-items: center; justify-content: center;
     }
     .card-thumb img {
       width: 100%; height: 100%; object-fit: cover;
@@ -95,7 +94,7 @@
       display: flex; align-items: center; justify-content: center;
       transition: opacity 0.3s;
     }
-    .play-btn.hidden { opacity: 0; }
+    .play-btn.hidden { opacity: 0; pointer-events: none; }
     .play-triangle {
       width: 0; height: 0;
       border-top: 13px solid transparent;
@@ -187,7 +186,6 @@
 </div>
 
 <div id="feed"></div>
-
 <a class="list-link" href="index.html">一覧で見る</a>
 
 <script>
@@ -200,19 +198,27 @@
   let isLoading = false;
   let hasMore = true;
   let activated = false;
-  let observer = null;
+  let intersectionObserver = null;
 
-  function enterSite() {
-    document.getElementById('age-gate').style.display = 'none';
-    localStorage.setItem('age_verified', '1');
-    activated = true;
-    loadItems(currentKeyword, true);
-  }
-
+  // 年齢確認済みなら即ロード
   if (localStorage.getItem('age_verified')) {
     document.getElementById('age-gate').style.display = 'none';
     activated = true;
-    loadItems(currentKeyword, true);
+    loadItems('', true);
+  }
+
+  function enterSite() {
+    // 年齢確認ボタンのタップをユーザー操作として利用
+    activated = true;
+    localStorage.setItem('age_verified', '1');
+    document.getElementById('age-gate').style.display = 'none';
+    loadItems('', true).then(() => {
+      // ロード完了後に最初のカードを自動再生
+      setTimeout(() => {
+        const firstCard = document.querySelector('.card');
+        if (firstCard) triggerPlay(firstCard);
+      }, 800);
+    });
   }
 
   function filterBy(el, keyword) {
@@ -222,8 +228,29 @@
     currentPage = 1;
     hasMore = true;
     document.getElementById('feed').innerHTML = '';
-    if (observer) { observer.disconnect(); observer = null; }
-    loadItems(keyword, true);
+    if (intersectionObserver) { intersectionObserver.disconnect(); intersectionObserver = null; }
+    loadItems(keyword, true).then(() => {
+      setTimeout(() => {
+        const firstCard = document.querySelector('.card');
+        if (firstCard) triggerPlay(firstCard);
+      }, 800);
+    });
+  }
+
+  function triggerPlay(card) {
+    const iframe = card.querySelector('iframe');
+    const playBtn = card.querySelector('.play-btn');
+    const overlay = card.querySelector('.tap-overlay');
+    if (iframe && !iframe.src) {
+      iframe.src = iframe.dataset.src;
+    }
+    if (playBtn) playBtn.classList.add('hidden');
+    if (overlay) overlay.classList.add('playing');
+  }
+
+  function activateCard(overlay) {
+    const card = overlay.closest('.card');
+    triggerPlay(card);
   }
 
   function toggleLike(btn) {
@@ -237,26 +264,15 @@
     if (next) next.scrollIntoView({ behavior: 'smooth' });
   }
 
-  function activateCard(overlay) {
-    const card = overlay.closest('.card');
-    const iframe = card.querySelector('iframe');
-    const playBtn = overlay.querySelector('.play-btn');
-    if (iframe && !iframe.src) {
-      iframe.src = iframe.dataset.src;
-    }
-    if (playBtn) playBtn.classList.add('hidden');
-    overlay.classList.add('playing');
-  }
-
-  function makeCard(item, i) {
+  function makeCard(item, globalIndex) {
     const title = item.title || '';
     const actress = item.iteminfo?.actress?.[0]?.name || '女優情報なし';
     const thumb = item.imageURL?.large || item.imageURL?.list || '';
     const cid = item.content_id || '';
     const affiliateUrl = item.affiliateURL || '#';
-    const badge = BADGES[i % BADGES.length];
+    const badge = BADGES[globalIndex % BADGES.length];
     const iframeSrc = cid
-      ? `https://www.dmm.co.jp/litevideo/-/part/=/cid=${cid}/size=476_306/affi_id=tigerstiger-990/?autoplay=1&mute=1`
+      ? `https://www.dmm.co.jp/litevideo/-/part/=/cid=${cid}/size=476_306/affi_id=tigerstiger-990/?autoplay=1&mute=0`
       : '';
 
     const div = document.createElement('div');
@@ -267,7 +283,8 @@
       </div>
       ${iframeSrc ? `
       <div class="iframe-wrap">
-        <iframe data-src="${iframeSrc}" allowfullscreen scrolling="no" allow="autoplay; muted; fullscreen"></iframe>
+        <iframe data-src="${iframeSrc}" allowfullscreen scrolling="no"
+          allow="autoplay; fullscreen; picture-in-picture"></iframe>
       </div>` : ''}
       <div class="tap-overlay" onclick="activateCard(this)">
         <div class="play-btn">
@@ -294,13 +311,11 @@
   }
 
   async function loadItems(keyword = '', reset = false) {
-    if (isLoading || !hasMore) return;
+    if (isLoading || !hasMore) return Promise.resolve();
     isLoading = true;
-
     if (reset) currentPage = 1;
 
     const feed = document.getElementById('feed');
-
     const loader = document.createElement('div');
     loader.className = 'loading-card';
     loader.id = 'loader';
@@ -336,10 +351,10 @@
         return;
       }
 
+      const globalStart = (currentPage - 1) * 20;
       const fragment = document.createDocumentFragment();
       items.forEach((item, i) => {
-        const card = makeCard(item, (currentPage - 1) * 20 + i);
-        fragment.appendChild(card);
+        fragment.appendChild(makeCard(item, globalStart + i));
       });
       feed.appendChild(fragment);
 
@@ -356,22 +371,24 @@
   }
 
   function setupIntersection() {
-    if (observer) observer.disconnect();
+    if (intersectionObserver) intersectionObserver.disconnect();
 
-    observer = new IntersectionObserver((entries) => {
+    intersectionObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         const card = entry.target;
         const iframe = card.querySelector('iframe');
-        const overlay = card.querySelector('.tap-overlay');
         const playBtn = card.querySelector('.play-btn');
+        const overlay = card.querySelector('.tap-overlay');
 
         if (entry.isIntersecting) {
-          if (iframe && !iframe.src && activated) {
+          // スクロールで画面に入ったら自動再生（activatedがtrueなら）
+          if (activated && iframe && !iframe.src) {
             iframe.src = iframe.dataset.src;
             if (playBtn) playBtn.classList.add('hidden');
             if (overlay) overlay.classList.add('playing');
           }
         } else {
+          // 画面から出たらリセット
           if (iframe && iframe.src) {
             iframe.src = '';
             if (playBtn) playBtn.classList.remove('hidden');
@@ -379,9 +396,11 @@
           }
         }
       });
-    }, { threshold: 0.8 });
+    }, { threshold: 0.75 });
 
-    document.querySelectorAll('.card').forEach(card => observer.observe(card));
+    document.querySelectorAll('.card').forEach(card => {
+      intersectionObserver.observe(card);
+    });
   }
 
   function setupScrollEnd() {
