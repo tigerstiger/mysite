@@ -10,9 +10,9 @@
 
   <style>
     :root {
-      --primary: #FF2D55;
+      --primary: #FF2D55; /* TikTok風レッド */
       --bg: #000;
-      --glass: rgba(255, 255, 255, 0.12);
+      --glass: rgba(255, 255, 255, 0.15);
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -27,14 +27,14 @@
       position: fixed;
     }
 
-    /* プレミアム年齢確認 */
+    /* 年齢確認（高級感重視） */
     #age-gate {
-      position: fixed; inset: 0; background: #000;
+      position: fixed; inset: 0; background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       z-index: 2000; padding: 40px; text-align: center;
     }
-    .gate-logo { font-size: 48px; font-weight: 800; margin-bottom: 10px; }
-    .gate-logo span { color: var(--primary); }
+    .gate-logo { font-size: 48px; font-weight: 900; letter-spacing: -2px; margin-bottom: 10px; }
+    .gate-logo span { color: var(--primary); text-shadow: 0 0 20px rgba(255,45,85,0.4); }
     .age-btn {
       width: 100%; max-width: 320px; padding: 20px;
       background: var(--primary); color: #fff; border: none;
@@ -42,24 +42,25 @@
       margin-top: 40px; box-shadow: 0 10px 30px rgba(255,45,85,0.4);
     }
 
-    /* タグバー（グラスモーフィズム） */
+    /* ナビゲーション（上部） */
     .nav-header {
       position: fixed; top: 0; width: 100%; z-index: 1000;
       padding-top: env(safe-area-inset-top);
-      background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
+      background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
     }
     .tag-scroll {
-      display: flex; gap: 12px; padding: 15px; overflow-x: auto; scrollbar-width: none;
+      display: flex; gap: 10px; padding: 15px; overflow-x: auto; scrollbar-width: none;
     }
     .tag-scroll::-webkit-scrollbar { display: none; }
     .tag {
-      flex-shrink: 0; padding: 8px 20px; background: var(--glass);
+      flex-shrink: 0; padding: 8px 18px; background: var(--glass);
       backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
       border-radius: 40px; font-size: 13px; font-weight: 600; border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.8);
     }
-    .tag.active { background: var(--primary); border-color: var(--primary); }
+    .tag.active { background: var(--primary); border-color: var(--primary); color: #fff; }
 
-    /* メインフィード */
+    /* フィード */
     #feed {
       height: 100dvh; overflow-y: scroll; scroll-snap-type: y mandatory;
       scrollbar-width: none; -webkit-overflow-scrolling: touch;
@@ -79,29 +80,33 @@
     }
     iframe { width: 100%; height: 100%; border: none; pointer-events: none; }
 
-    /* サムネイル・ポスター（読み込み中・タップ待ち） */
+    /* サムネイル（ポスター） */
     .poster-layer {
       position: absolute; inset: 0; z-index: 10;
       background-size: cover; background-position: center;
       display: flex; align-items: center; justify-content: center;
-      transition: opacity 0.4s ease-out;
+      transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .poster-layer.hidden { opacity: 0; pointer-events: none; }
+    
+    /* 背景をぼかす（動画との馴染みを良くする） */
     .poster-layer::before {
       content: ''; position: absolute; inset: 0; 
-      background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.4) 100%);
+      background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.6));
     }
 
+    /* 再生ボタン（高級感重視） */
     .play-trigger {
-      width: 80px; height: 80px; border-radius: 50%;
-      background: rgba(255,255,255,0.2); backdrop-filter: blur(10px);
+      width: 72px; height: 72px; border-radius: 50%;
+      background: rgba(255,255,255,0.2); backdrop-filter: blur(15px);
       display: flex; align-items: center; justify-content: center;
-      border: 2px solid #fff; z-index: 11;
+      border: 1px solid rgba(255,255,255,0.4); z-index: 11;
+      box-shadow: 0 0 30px rgba(0,0,0,0.3);
     }
     .play-icon {
-      width: 0; height: 0; border-top: 15px solid transparent;
-      border-bottom: 15px solid transparent; border-left: 25px solid #fff;
-      margin-left: 8px;
+      width: 0; height: 0; border-top: 14px solid transparent;
+      border-bottom: 14px solid transparent; border-left: 22px solid #fff;
+      margin-left: 6px;
     }
 
     /* UIレイヤー */
@@ -109,32 +114,37 @@
       position: absolute; inset: 0; z-index: 20;
       pointer-events: none;
       display: flex; flex-direction: column; justify-content: flex-end;
-      padding: 0 16px calc(40px + env(safe-area-inset-bottom));
-      background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 50%);
+      padding: 0 16px calc(30px + env(safe-area-inset-bottom));
+      background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 40%);
     }
     .ui-layer * { pointer-events: auto; }
 
+    /* サイドバー */
     .side-bar {
-      position: absolute; right: 12px; bottom: 180px;
-      display: flex; flex-direction: column; gap: 24px;
+      position: absolute; right: 12px; bottom: 160px;
+      display: flex; flex-direction: column; gap: 20px;
     }
     .action-btn { 
       display: flex; flex-direction: column; align-items: center; gap: 6px; 
-      background: none; border: none; color: #fff;
+      background: none; border: none; color: #fff; cursor: pointer;
     }
     .icon-box {
-      width: 48px; height: 48px; border-radius: 50%;
-      background: var(--glass); backdrop-filter: blur(15px);
-      display: flex; align-items: center; justify-content: center; font-size: 20px;
+      width: 50px; height: 50px; border-radius: 50%;
+      background: var(--glass); backdrop-filter: blur(20px);
+      display: flex; align-items: center; justify-content: center; font-size: 22px;
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: transform 0.2s;
     }
-    .icon-box.active { color: var(--primary); }
+    .icon-box:active { transform: scale(0.9); }
+    .icon-box.liked { background: var(--primary); border-color: var(--primary); }
 
-    .info-pane { max-width: 80%; }
-    .info-pane .actress { font-size: 18px; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
-    .info-pane .title { font-size: 14px; line-height: 1.5; color: #eee; margin-bottom: 20px; font-weight: 500; }
+    .info-pane { max-width: 82%; }
+    .info-pane .actress { font-size: 17px; font-weight: 700; color: var(--primary); margin-bottom: 6px; }
+    .info-pane .title { font-size: 14px; line-height: 1.5; color: #fff; margin-bottom: 18px; font-weight: 400; }
     .cta-btn {
-      display: inline-block; background: #fff; color: #000; padding: 12px 30px;
+      display: inline-block; background: #fff; color: #000; padding: 12px 28px;
       border-radius: 12px; font-weight: 800; text-decoration: none; font-size: 14px;
+      box-shadow: 0 4px 15px rgba(255,255,255,0.2);
     }
 
   </style>
@@ -143,51 +153,52 @@
 
 <div id="age-gate">
   <div class="gate-logo">SHORT<span>XX</span></div>
-  <p style="color: #666; font-weight: 600;">PREMIUM ADULT CONTENT</p>
-  <button class="age-btn" onclick="startApp()">18歳以上・入場する</button>
+  <p style="color: #888; letter-spacing: 2px; font-size: 12px;">PREMIUM SHORT FEED</p>
+  <button class="age-btn" onclick="startExperience()">18歳以上・入場する</button>
 </div>
 
 <div class="nav-header">
   <div class="tag-scroll">
-    <div class="tag active" onclick="changeCategory(this, '')">おすすめ</div>
-    <div class="tag" onclick="changeCategory(this, '素人')">素人</div>
-    <div class="tag" onclick="changeCategory(this, '個人撮影')">個人</div>
-    <div class="tag" onclick="changeCategory(this, '巨乳')">巨乳</div>
-    <div class="tag" onclick="changeCategory(this, '人妻')">人妻</div>
-    <div class="tag" onclick="changeCategory(this, '美少女')">美少女</div>
+    <div class="tag active" onclick="changeTag(this, '')">おすすめ</div>
+    <div class="tag" onclick="changeTag(this, '素人')">素人</div>
+    <div class="tag" onclick="changeTag(this, '巨乳')">巨乳</div>
+    <div class="tag" onclick="changeTag(this, '人妻')">人妻</div>
+    <div class="tag" onclick="changeTag(this, '美少女')">美少女</div>
   </div>
 </div>
 
 <div id="feed"></div>
 
 <script>
-  const API_KEY = 'HLU1m5DsrpWrznMhuenE';
-  const AFFI_ID = 'tigerstiger-990';
-  const PROXY = 'https://corsproxy.io/?';
+  const CONFIG = {
+    API_KEY: 'HLU1m5DsrpWrznMhuenE',
+    AFFI_ID: 'tigerstiger-990',
+    PROXY: 'https://corsproxy.io/?'
+  };
 
   let state = {
     page: 1,
     keyword: '',
     isLoading: false,
-    favorites: JSON.parse(localStorage.getItem('favs') || '[]'),
+    favorites: JSON.parse(localStorage.getItem('fav_v2') || '[]'),
     isAppStarted: false
   };
 
-  function startApp() {
+  function startExperience() {
     state.isAppStarted = true;
-    localStorage.setItem('age_verified', '1');
+    localStorage.setItem('age_verified_v2', '1');
     document.getElementById('age-gate').style.display = 'none';
-    loadVideos(true);
+    loadContent(true);
   }
 
-  async function loadVideos(reset = false) {
+  async function loadContent(reset = false) {
     if (state.isLoading) return;
     state.isLoading = true;
     if (reset) { state.page = 1; document.getElementById('feed').innerHTML = ''; }
 
     const offset = (state.page - 1) * 20 + 1;
-    const baseUrl = `https://api.dmm.com/affiliate/v3/ItemList?api_id=${API_KEY}&affiliate_id=${AFFI_ID}&site=FANZA&service=digital&floor=videoa&hits=20&offset=${offset}&sort=rank&output=json`;
-    const finalUrl = PROXY + encodeURIComponent(baseUrl + (state.keyword ? `&keyword=${state.keyword}` : ''));
+    const baseUrl = `https://api.dmm.com/affiliate/v3/ItemList?api_id=${CONFIG.API_KEY}&affiliate_id=${CONFIG.AFFI_ID}&site=FANZA&service=digital&floor=videoa&hits=20&offset=${offset}&sort=rank&output=json`;
+    const finalUrl = CONFIG.PROXY + encodeURIComponent(baseUrl + (state.keyword ? `&keyword=${state.keyword}` : ''));
 
     try {
       const res = await fetch(finalUrl);
@@ -195,95 +206,92 @@
       const items = data.result.items;
       
       const feed = document.getElementById('feed');
-      items.forEach(item => feed.appendChild(createVideoCard(item)));
+      items.forEach(item => feed.appendChild(createCard(item)));
       
       state.page++;
-      setupObserver();
-    } catch (e) { console.error("Load Error"); }
+      setupIntersection();
+    } catch (e) { console.error("Error loading items"); }
     state.isLoading = false;
   }
 
-  function createVideoCard(item) {
+  function createCard(item) {
     const cid = item.content_id;
-    const thumb = item.imageURL.large;
+    const thumb = item.imageURL.large || item.imageURL.list;
     const actress = item.iteminfo.actress ? item.iteminfo.actress[0].name : "Exclusive";
-    const isLiked = state.favorites.includes(cid) ? 'active' : '';
+    const isLiked = state.favorites.includes(cid) ? 'liked' : '';
 
     const card = document.createElement('div');
     card.className = 'card';
     card.dataset.cid = cid;
     card.innerHTML = `
       <div class="video-shell">
-        <iframe data-src="https://www.dmm.co.jp/litevideo/-/part/=/cid=${cid}/size=476_306/affi_id=${AFFI_ID}/?autoplay=1&mute=0" allow="autoplay; fullscreen"></iframe>
+        <iframe data-src="https://www.dmm.co.jp/litevideo/-/part/=/cid=${cid}/size=476_306/affi_id=${CONFIG.AFFI_ID}/?autoplay=1&mute=0" allow="autoplay; fullscreen"></iframe>
       </div>
-      <div class="poster-layer" style="background-image:url(${thumb})" onclick="playVideo(this)">
+      <div class="poster-layer" style="background-image:url(${thumb})" onclick="handlePlay(this)">
         <div class="play-trigger"><div class="play-icon"></div></div>
       </div>
       <div class="side-bar">
-        <div class="action-btn" onclick="toggleFav(this, '${cid}')">
+        <div class="action-btn" onclick="toggleFavorite(this, '${cid}')">
           <div class="icon-box ${isLiked}">❤︎</div>
-          <span style="font-size:10px; font-weight:700;">いいね</span>
+          <span style="font-size:10px; font-weight:700; color:#ccc;">いいね</span>
         </div>
         <div class="action-btn" onclick="window.open('${item.affiliateURL}', '_blank')">
           <div class="icon-box">🛒</div>
-          <span style="font-size:10px; font-weight:700;">購入</span>
+          <span style="font-size:10px; font-weight:700; color:#ccc;">購入</span>
         </div>
       </div>
       <div class="ui-layer">
         <div class="info-pane">
           <div class="actress">@${actress}</div>
           <div class="title">${item.title}</div>
-          <a href="${item.affiliateURL}" class="cta-btn" target="_blank">フルバージョンを見る</a>
+          <a href="${item.affiliateURL}" class="cta-btn" target="_blank">本編をチェック</a>
         </div>
       </div>
     `;
     return card;
   }
 
-  // 重要：iOSで確実に再生するための処理
-  function playVideo(poster) {
+  // タップで動画を再生
+  function handlePlay(poster) {
     const card = poster.closest('.card');
     const iframe = card.querySelector('iframe');
     
-    // 1. ポスターを消す
+    // 1. サムネイルを消す
     poster.classList.add('hidden');
     
-    // 2. iframeにsrcを入れて再生開始
+    // 2. iframeに初めてURLを入れる（これで再生開始）
     if (!iframe.src) {
       iframe.src = iframe.dataset.src;
     }
   }
 
-  function toggleFav(btn, cid) {
+  function toggleFavorite(btn, cid) {
     const icon = btn.querySelector('.icon-box');
     if (state.favorites.includes(cid)) {
       state.favorites = state.favorites.filter(id => id !== cid);
-      icon.classList.remove('active');
+      icon.classList.remove('liked');
     } else {
       state.favorites.push(cid);
-      icon.classList.add('active');
+      icon.classList.add('liked');
     }
-    localStorage.setItem('favs', JSON.stringify(state.favorites));
+    localStorage.setItem('fav_v2', JSON.stringify(state.favorites));
   }
 
-  function changeCategory(el, key) {
+  function changeTag(el, key) {
     document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
     el.classList.add('active');
     state.keyword = key;
-    loadVideos(true);
+    loadContent(true);
   }
 
-  function setupObserver() {
+  function setupIntersection() {
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         const iframe = entry.target.querySelector('iframe');
         const poster = entry.target.querySelector('.poster-layer');
         
-        if (entry.isIntersecting) {
-          // 画面内に入っても、勝手にsrcを入れない（タップを待つ）
-          // ただし、既に再生済みの場合は何もしない
-        } else {
-          // 完全に画面外に出た時だけリセットして重さを解消
+        if (!entry.isIntersecting) {
+          // 画面外に出た動画は停止＆サムネイルを復活（iPhoneの負荷軽減）
           iframe.src = '';
           poster.classList.remove('hidden');
         }
@@ -292,12 +300,17 @@
     document.querySelectorAll('.card').forEach(c => observer.observe(c));
   }
 
+  // 無限スクロール
   document.getElementById('feed').addEventListener('scroll', () => {
     const f = document.getElementById('feed');
-    if (f.scrollHeight - f.scrollTop - f.clientHeight < 800) loadVideos();
+    if (f.scrollHeight - f.scrollTop - f.clientHeight < 1000) loadContent();
   });
 
-  if (localStorage.getItem('age_verified')) startApp();
+  if (localStorage.getItem('age_verified_v2')) {
+    document.getElementById('age-gate').style.display = 'none';
+    state.isAppStarted = true;
+    loadContent(true);
+  }
 </script>
 </body>
 </html>
