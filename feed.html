@@ -13,6 +13,7 @@
       --primary: #FF2D55;
       --bg: #000;
       --glass: rgba(255, 255, 255, 0.15);
+      --text-soft: rgba(255,255,255,0.78);
     }
 
     * {
@@ -80,7 +81,7 @@
       width: 100%;
       z-index: 1000;
       padding-top: env(safe-area-inset-top);
-      background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+      background: linear-gradient(to bottom, rgba(0,0,0,0.82), transparent);
     }
 
     .tag-scroll {
@@ -106,7 +107,7 @@
       font-size: 13px;
       font-weight: 600;
       border: 1px solid rgba(255,255,255,0.1);
-      color: rgba(255,255,255,0.8);
+      color: var(--text-soft);
       user-select: none;
     }
 
@@ -123,6 +124,7 @@
       scrollbar-width: none;
       -webkit-overflow-scrolling: touch;
       overscroll-behavior: contain;
+      background: #000;
     }
 
     #feed::-webkit-scrollbar {
@@ -138,64 +140,91 @@
       overflow: hidden;
     }
 
-    .video-shell {
+    .bg-poster {
       position: absolute;
       inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       z-index: 1;
-      background: #000;
-    }
-
-    iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-      background: #000;
-      pointer-events: auto;
-    }
-
-    .poster-layer {
-      position: absolute;
-      inset: 0;
-      z-index: 10;
       background-size: cover;
       background-position: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: opacity 0.35s ease;
+      transform: scale(1.08);
+      filter: blur(18px) brightness(0.72);
+      opacity: 1;
+      transition: opacity 0.3s ease, filter 0.3s ease;
     }
 
-    .poster-layer.hidden {
-      opacity: 0;
-      pointer-events: none;
+    .card.active .bg-poster {
+      filter: blur(20px) brightness(0.62);
+      opacity: 0.95;
     }
 
-    .poster-layer::before {
+    .bg-poster::after {
       content: '';
       position: absolute;
       inset: 0;
-      background: linear-gradient(rgba(0,0,0,0.18), rgba(0,0,0,0.6));
+      background: radial-gradient(circle at center, rgba(0,0,0,0.10), rgba(0,0,0,0.58) 72%, rgba(0,0,0,0.9) 100%);
     }
 
-    .play-trigger {
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.2);
-      backdrop-filter: blur(15px);
-      -webkit-backdrop-filter: blur(15px);
+    .media-shell {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
       display: flex;
       align-items: center;
       justify-content: center;
-      border: 1px solid rgba(255,255,255,0.4);
-      z-index: 11;
-      box-shadow: 0 0 30px rgba(0,0,0,0.3);
+      overflow: hidden;
+      background: transparent;
     }
 
-    .play-icon {
+    .media-shell iframe,
+    .media-shell video {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+      background: #000;
+    }
+
+    .media-shell video {
+      object-fit: cover;
+    }
+
+    .media-shell iframe {
+      pointer-events: auto;
+    }
+
+    .poster-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 1;
+      transition: opacity 0.25s ease;
+      pointer-events: none;
+      background: linear-gradient(rgba(0,0,0,0.08), rgba(0,0,0,0.32));
+    }
+
+    .card.playing .poster-overlay {
+      opacity: 0;
+    }
+
+    .play-hint {
+      width: 78px;
+      height: 78px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.22);
+      border: 1px solid rgba(255,255,255,0.38);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 30px rgba(0,0,0,0.28);
+    }
+
+    .play-hint::after {
+      content: '';
       width: 0;
       height: 0;
       border-top: 14px solid transparent;
@@ -204,45 +233,46 @@
       margin-left: 6px;
     }
 
-    .stop-badge {
+    .loading-badge,
+    .stop-badge,
+    .tap-hint {
       position: absolute;
-      top: 16px;
-      right: 16px;
       z-index: 12;
-      background: rgba(0,0,0,0.5);
+      background: rgba(0,0,0,0.48);
       color: #fff;
       font-size: 12px;
       font-weight: 700;
       padding: 8px 12px;
       border-radius: 999px;
       backdrop-filter: blur(10px);
-      opacity: 0;
-      transition: opacity 0.2s ease;
+      -webkit-backdrop-filter: blur(10px);
       pointer-events: none;
     }
 
-    .card.playing .stop-badge {
-      opacity: 1;
+    .tap-hint {
+      left: 16px;
+      top: 16px;
     }
 
     .loading-badge {
-      position: absolute;
-      top: 16px;
       left: 16px;
-      z-index: 12;
-      background: rgba(0,0,0,0.5);
-      color: #fff;
-      font-size: 12px;
-      font-weight: 700;
-      padding: 8px 12px;
-      border-radius: 999px;
-      backdrop-filter: blur(10px);
+      bottom: 230px;
       opacity: 0;
       transition: opacity 0.2s ease;
-      pointer-events: none;
+    }
+
+    .stop-badge {
+      right: 16px;
+      top: 16px;
+      opacity: 0;
+      transition: opacity 0.2s ease;
     }
 
     .card.loading .loading-badge {
+      opacity: 1;
+    }
+
+    .card.playing .stop-badge {
       opacity: 1;
     }
 
@@ -255,7 +285,7 @@
       flex-direction: column;
       justify-content: flex-end;
       padding: 0 16px calc(30px + env(safe-area-inset-bottom));
-      background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 40%);
+      background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.42) 18%, transparent 42%);
     }
 
     .ui-layer * {
@@ -316,14 +346,16 @@
       font-weight: 700;
       color: var(--primary);
       margin-bottom: 6px;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
     }
 
     .info-pane .title {
       font-size: 14px;
-      line-height: 1.5;
+      line-height: 1.55;
       color: #fff;
       margin-bottom: 18px;
       font-weight: 400;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.28);
     }
 
     .cta-btn {
@@ -338,21 +370,6 @@
       box-shadow: 0 4px 15px rgba(255,255,255,0.2);
     }
 
-    .tap-hint {
-      position: absolute;
-      left: 16px;
-      top: 16px;
-      z-index: 12;
-      background: rgba(0,0,0,0.45);
-      color: #fff;
-      font-size: 12px;
-      padding: 8px 12px;
-      border-radius: 999px;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      pointer-events: none;
-    }
-
     .error-overlay {
       position: absolute;
       inset: 0;
@@ -362,7 +379,7 @@
       justify-content: center;
       text-align: center;
       padding: 24px;
-      background: rgba(0,0,0,0.85);
+      background: rgba(0,0,0,0.82);
       color: #fff;
       flex-direction: column;
       gap: 14px;
@@ -409,18 +426,20 @@
     PROXY: 'https://corsproxy.io/?'
   };
 
+  const feed = document.getElementById('feed');
+
   let state = {
     page: 1,
     keyword: '',
     isLoading: false,
     favorites: JSON.parse(localStorage.getItem('fav_v2') || '[]'),
     isAppStarted: false,
-    observers: [],
-    playingCard: null
+    activeCard: null,
+    rafPending: false
   };
 
   function isIOS() {
-    return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
       (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   }
 
@@ -431,28 +450,74 @@
     loadContent(true);
   }
 
+  function escapeHTML(str) {
+    return String(str)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;');
+  }
+
+  function cssUrl(url) {
+    return String(url || '').replaceAll('\\', '\\\\').replaceAll('"', '\\"');
+  }
+
   function buildLiteVideoURL(cid) {
     return `https://www.dmm.co.jp/litevideo/-/part/=/cid=${cid}/size=476_306/affi_id=${CONFIG.AFFI_ID}/?autoplay=1&mute=1&playsinline=1`;
   }
 
-  function getPreviewURL(item) {
-    const sm = item.sampleMovieURL;
+  function getSampleURLFromItem(item) {
+    const sm = item?.sampleMovieURL;
+    if (!sm) return '';
 
-    if (typeof sm === 'string' && sm.trim()) return sm.trim();
-
-    if (sm && typeof sm === 'object') {
-      if (typeof sm.size_476_306 === 'string' && sm.size_476_306.trim()) return sm.size_476_306.trim();
-      if (typeof sm.large === 'string' && sm.large.trim()) return sm.large.trim();
-      if (typeof sm.pc === 'string' && sm.pc.trim()) return sm.pc.trim();
-      if (typeof sm.sp === 'string' && sm.sp.trim()) return sm.sp.trim();
-      if (typeof sm.url === 'string' && sm.url.trim()) return sm.url.trim();
+    if (typeof sm === 'string') {
+      return sm.trim();
     }
 
-    return buildLiteVideoURL(item.content_id);
+    if (typeof sm === 'object') {
+      const keys = ['size_720_480', 'size_644_360', 'size_560_315', 'size_476_306', 'large', 'pc', 'sp', 'url'];
+      for (const key of keys) {
+        if (typeof sm[key] === 'string' && sm[key].trim()) return sm[key].trim();
+      }
+    }
+
+    return '';
+  }
+
+  function isDirectMedia(url) {
+    return /\.(mp4|m4v|mov|webm|m3u8)(\?|#|$)/i.test(url || '');
+  }
+
+  function getPreviewConfig(item) {
+    const cid = item.content_id;
+    const sample = getSampleURLFromItem(item);
+
+    if (sample) {
+      if (isDirectMedia(sample)) {
+        return {
+          kind: 'video',
+          primary: sample,
+          fallback: buildLiteVideoURL(cid)
+        };
+      }
+
+      return {
+        kind: 'iframe',
+        primary: sample,
+        fallback: buildLiteVideoURL(cid)
+      };
+    }
+
+    return {
+      kind: 'iframe',
+      primary: buildLiteVideoURL(cid),
+      fallback: ''
+    };
   }
 
   function getAffiliateURL(item) {
-    return item.affiliateURL || item.URL || item.url || '#';
+    return item?.affiliateURL || item?.URL || item?.url || '#';
   }
 
   async function loadContent(reset = false) {
@@ -461,9 +526,8 @@
 
     if (reset) {
       state.page = 1;
-      document.getElementById('feed').innerHTML = '';
-      clearObservers();
-      state.playingCard = null;
+      feed.innerHTML = '';
+      state.activeCard = null;
     }
 
     const offset = (state.page - 1) * 20 + 1;
@@ -480,11 +544,12 @@
       const data = await res.json();
       const items = data?.result?.items || [];
 
-      const feed = document.getElementById('feed');
       items.forEach(item => feed.appendChild(createCard(item)));
-
       state.page++;
-      setupIntersection();
+
+      if (!state.activeCard) {
+        schedulePlaybackUpdate();
+      }
     } catch (e) {
       console.error('Error loading items:', e);
     }
@@ -497,38 +562,38 @@
     const thumb = item?.imageURL?.large || item?.imageURL?.list || '';
     const actress = item?.iteminfo?.actress?.length ? item.iteminfo.actress[0].name : 'Exclusive';
     const isLiked = state.favorites.includes(cid) ? 'liked' : '';
-    const previewURL = getPreviewURL(item);
+    const preview = getPreviewConfig(item);
     const affiliateURL = getAffiliateURL(item);
 
     const card = document.createElement('div');
     card.className = 'card';
     card.dataset.cid = cid;
-    card.dataset.previewUrl = previewURL;
-    card.dataset.affiliateUrl = affiliateURL;
     card.dataset.playing = '0';
+    card.dataset.kind = preview.kind;
+    card.dataset.primaryUrl = preview.primary;
+    card.dataset.fallbackUrl = preview.fallback;
+    card.dataset.affiliateUrl = affiliateURL;
     card.dataset.loaded = '0';
-    card.dataset.mode = isIOS() ? 'ios' : 'desktop';
 
     card.innerHTML = `
-      <div class="video-shell">
-        <iframe
-          loading="lazy"
-          allow="autoplay; fullscreen; picture-in-picture"
-          allowfullscreen
-        ></iframe>
+      <div class="bg-poster"></div>
+
+      <div class="media-shell">
+        <video class="video-media" muted playsinline preload="none" loop style="display:none;"></video>
+        <iframe class="iframe-media" loading="lazy" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen style="display:none;"></iframe>
       </div>
 
-      <div class="poster-layer" style="background-image:url(${thumb})" onclick="togglePlayback(this)">
-        <div class="play-trigger"><div class="play-icon"></div></div>
+      <div class="poster-overlay">
+        <div class="play-hint"></div>
       </div>
 
-      <div class="tap-hint">タップで再生 / もう一度タップで停止</div>
+      <div class="tap-hint">スクロールで自動再生</div>
       <div class="loading-badge">読み込み中...</div>
       <div class="stop-badge">停止中</div>
 
       <div class="error-overlay">
         <div style="font-size:14px; line-height:1.6;">
-          この端末では埋め込み再生が不安定です。<br>
+          埋め込み再生が不安定です。<br>
           外部ページで開くと再生できる場合があります。
         </div>
         <button onclick="openExternal(this)">外部で開く</button>
@@ -547,86 +612,42 @@
 
       <div class="ui-layer">
         <div class="info-pane">
-          <div class="actress">@${actress}</div>
+          <div class="actress">@${escapeHTML(actress)}</div>
           <div class="title">${escapeHTML(item.title || '')}</div>
           <a href="${affiliateURL}" class="cta-btn" target="_blank" rel="noopener">本編をチェック</a>
         </div>
       </div>
     `;
 
-    const iframe = card.querySelector('iframe');
+    const bg = card.querySelector('.bg-poster');
+    bg.style.backgroundImage = `url("${cssUrl(thumb)}")`;
+
+    const video = card.querySelector('.video-media');
+    const iframe = card.querySelector('.iframe-media');
+
+    video.addEventListener('loadeddata', () => {
+      card.classList.remove('loading');
+      card.dataset.loaded = '1';
+    });
+
+    video.addEventListener('error', () => {
+      const fallback = card.dataset.fallbackUrl;
+      if (fallback && card.dataset.kind === 'video') {
+        card.dataset.kind = 'iframe';
+        stopCard(card);
+        startIframeCard(card, fallback);
+      } else {
+        card.classList.remove('loading');
+        card.classList.add('error');
+      }
+    });
+
     iframe.addEventListener('load', () => {
       card.classList.remove('loading');
       card.dataset.loaded = '1';
     });
 
     return card;
-  }
-
-  function escapeHTML(str) {
-    return String(str)
-      .replaceAll('&', '&amp;')
-      .replaceAll('<', '&lt;')
-      .replaceAll('>', '&gt;')
-      .replaceAll('"', '&quot;')
-      .replaceAll("'", '&#39;');
-  }
-
-  function togglePlayback(poster) {
-    const card = poster.closest('.card');
-    const iframe = card.querySelector('iframe');
-    const isPlaying = card.dataset.playing === '1';
-
-    if (isPlaying) {
-      stopCard(card);
-      return;
-    }
-
-    stopAllCards(card);
-    startCard(card, iframe, poster);
-  }
-
-  function startCard(card, iframe, poster) {
-    const previewURL = card.dataset.previewUrl;
-
-    card.dataset.playing = '1';
-    card.classList.add('playing', 'loading');
-    card.classList.remove('error');
-
-    poster.classList.add('hidden');
-
-    if (!iframe.src) {
-      iframe.src = previewURL;
-    }
-
-    state.playingCard = card;
-  }
-
-  function stopCard(card) {
-    const iframe = card.querySelector('iframe');
-    const poster = card.querySelector('.poster-layer');
-
-    iframe.src = '';
-    poster.classList.remove('hidden');
-    card.dataset.playing = '0';
-    card.classList.remove('playing', 'loading', 'error');
-
-    if (state.playingCard === card) state.playingCard = null;
-  }
-
-  function stopAllCards(exceptCard = null) {
-    document.querySelectorAll('.card').forEach(card => {
-      if (exceptCard && card === exceptCard) return;
-      if (card.dataset.playing === '1') {
-        stopCard(card);
-      }
-    });
-  }
-
-  function openExternal(btn) {
-    const card = btn.closest('.card');
-    const url = card?.dataset?.affiliateUrl || '#';
-    if (url && url !== '#') window.open(url, '_blank');
   }
 
   function toggleFavorite(btn, cid) {
@@ -650,49 +671,168 @@
     loadContent(true);
   }
 
-  function setupIntersection() {
-    clearObservers();
-
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        const card = entry.target;
-        if (!entry.isIntersecting && card.dataset.playing === '1') {
-          stopCard(card);
-        }
-      });
-    }, { threshold: 0.15 });
-
-    document.querySelectorAll('.card').forEach(card => observer.observe(card));
-    state.observers.push(observer);
+  function openExternal(btn) {
+    const card = btn.closest('.card');
+    const url = card?.dataset?.affiliateUrl || '#';
+    if (url && url !== '#') window.open(url, '_blank', 'noopener');
   }
 
-  function clearObservers() {
-    state.observers.forEach(obs => obs.disconnect());
-    state.observers = [];
-  }
+  function stopCard(card) {
+    if (!card) return;
 
-  const feed = document.getElementById('feed');
+    const video = card.querySelector('.video-media');
+    const iframe = card.querySelector('.iframe-media');
+    const poster = card.querySelector('.poster-overlay');
 
-  feed.addEventListener('scroll', () => {
-    const f = feed;
-
-    if (f.scrollHeight - f.scrollTop - f.clientHeight < 1000) {
-      loadContent();
+    if (video) {
+      video.pause();
+      video.removeAttribute('src');
+      video.load();
+      video.style.display = 'none';
     }
 
-    document.querySelectorAll('.card').forEach(card => {
-      const rect = card.getBoundingClientRect();
-      const visible = rect.top < window.innerHeight * 0.85 && rect.bottom > window.innerHeight * 0.15;
+    if (iframe) {
+      iframe.src = '';
+      iframe.style.display = 'none';
+    }
 
-      if (!visible && card.dataset.playing === '1') {
-        stopCard(card);
-      }
+    card.classList.remove('playing', 'loading', 'error');
+    card.dataset.playing = '0';
+
+    if (poster) poster.style.opacity = '1';
+
+    if (state.activeCard === card) {
+      state.activeCard = null;
+    }
+  }
+
+  function stopAllCards(exceptCard = null) {
+    document.querySelectorAll('.card').forEach(card => {
+      if (exceptCard && card === exceptCard) return;
+      if (card.dataset.playing === '1') stopCard(card);
     });
-  }, { passive: true });
+  }
+
+  function startVideoCard(card, url) {
+    const video = card.querySelector('.video-media');
+    const iframe = card.querySelector('.iframe-media');
+
+    if (!video) return;
+
+    iframe.src = '';
+    iframe.style.display = 'none';
+
+    video.style.display = 'block';
+    if (video.src !== url) {
+      video.src = url;
+    }
+
+    card.classList.add('playing', 'loading');
+    card.classList.remove('error');
+    card.dataset.playing = '1';
+
+    const playPromise = video.play();
+    if (playPromise && typeof playPromise.catch === 'function') {
+      playPromise.catch(() => {
+        card.classList.remove('loading');
+      });
+    }
+
+    state.activeCard = card;
+  }
+
+  function startIframeCard(card, url) {
+    const video = card.querySelector('.video-media');
+    const iframe = card.querySelector('.iframe-media');
+
+    if (video) {
+      video.pause();
+      video.removeAttribute('src');
+      video.load();
+      video.style.display = 'none';
+    }
+
+    iframe.style.display = 'block';
+    if (iframe.src !== url) {
+      iframe.src = url;
+    }
+
+    card.classList.add('playing', 'loading');
+    card.classList.remove('error');
+    card.dataset.playing = '1';
+
+    state.activeCard = card;
+  }
+
+  function activateCard(card) {
+    if (!card) return;
+    if (state.activeCard === card && card.dataset.playing === '1') return;
+
+    stopAllCards(card);
+
+    const kind = card.dataset.kind;
+    const primary = card.dataset.primaryUrl;
+
+    if (kind === 'video') {
+      startVideoCard(card, primary);
+    } else {
+      startIframeCard(card, primary);
+    }
+  }
+
+  function updatePlaybackByScroll() {
+    const cards = [...document.querySelectorAll('.card')];
+    if (!cards.length) return;
+
+    const viewportCenter = window.innerHeight * 0.5;
+    let bestCard = null;
+    let bestDistance = Infinity;
+
+    for (const card of cards) {
+      const rect = card.getBoundingClientRect();
+      if (rect.bottom < 0 || rect.top > window.innerHeight) continue;
+
+      const center = (rect.top + rect.bottom) / 2;
+      const distance = Math.abs(center - viewportCenter);
+
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        bestCard = card;
+      }
+    }
+
+    if (bestCard && bestDistance < window.innerHeight * 0.42) {
+      activateCard(bestCard);
+    } else if (state.activeCard) {
+      stopCard(state.activeCard);
+    }
+  }
+
+  function schedulePlaybackUpdate() {
+    if (state.rafPending) return;
+    state.rafPending = true;
+
+    requestAnimationFrame(() => {
+      state.rafPending = false;
+      updatePlaybackByScroll();
+      maybeLoadMore();
+    });
+  }
+
+  function maybeLoadMore() {
+    if (feed.scrollHeight - feed.scrollTop - feed.clientHeight < 1200) {
+      loadContent();
+    }
+  }
+
+  feed.addEventListener('scroll', schedulePlaybackUpdate, { passive: true });
+  window.addEventListener('resize', schedulePlaybackUpdate);
 
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       stopAllCards();
+    } else {
+      schedulePlaybackUpdate();
     }
   });
 
