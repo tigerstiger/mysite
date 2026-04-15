@@ -78,10 +78,8 @@
       z-index: 2;
     }
     .iframe-wrap iframe {
-      width: 100%;
-      height: 60%;
-      border: none;
-      background: transparent;
+      width: 100%; height: 60%;
+      border: none; background: transparent;
     }
 
     .tap-overlay {
@@ -149,7 +147,7 @@
       text-decoration: none; display: block; text-align: center;
     }
 
-    .loading-screen {
+    .loading-card {
       height: 100dvh; display: flex; align-items: center;
       justify-content: center; color: #666; font-size: 14px;
       scroll-snap-align: start;
@@ -188,9 +186,7 @@
   <div class="tag" onclick="filterBy(this, '美少女')">美少女</div>
 </div>
 
-<div id="feed">
-  <div class="loading-screen">FANZAから最新作品を取得中...</div>
-</div>
+<div id="feed"></div>
 
 <a class="list-link" href="index.html">一覧で見る</a>
 
@@ -199,21 +195,35 @@
   const PROXY = 'https://corsproxy.io/?';
   const BADGES = ['昨日の売上1位', 'SNSでバズ中', '人気急上昇', '今週の新着', '殿堂入り', '注目作品'];
 
+  let currentPage = 1;
+  let currentKeyword = '';
+  let isLoading = false;
+  let hasMore = true;
+  let activated = false;
+  let observer = null;
+
   function enterSite() {
     document.getElementById('age-gate').style.display = 'none';
     localStorage.setItem('age_verified', '1');
-    initFeed();
+    activated = true;
+    loadItems(currentKeyword, true);
   }
 
   if (localStorage.getItem('age_verified')) {
     document.getElementById('age-gate').style.display = 'none';
-    document.addEventListener('DOMContentLoaded', () => loadItems());
+    activated = true;
+    loadItems(currentKeyword, true);
   }
 
   function filterBy(el, keyword) {
     document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
     el.classList.add('active');
-    loadItems(keyword);
+    currentKeyword = keyword;
+    currentPage = 1;
+    hasMore = true;
+    document.getElementById('feed').innerHTML = '';
+    if (observer) { observer.disconnect(); observer = null; }
+    loadItems(keyword, true);
   }
 
   function toggleLike(btn) {
@@ -227,14 +237,77 @@
     if (next) next.scrollIntoView({ behavior: 'smooth' });
   }
 
-  function initFeed() {
-    loadItems();
+  function activateCard(overlay) {
+    const card = overlay.closest('.card');
+    const iframe = card.querySelector('iframe');
+    const playBtn = overlay.querySelector('.play-btn');
+    if (iframe && !iframe.src) {
+      iframe.src = iframe.dataset.src;
+    }
+    if (playBtn) playBtn.classList.add('hidden');
+    overlay.classList.add('playing');
   }
 
-  async function loadItems(keyword = '') {
-    const feed = document.getElementById('feed');
-    feed.innerHTML = '<div class="loading-screen">FANZAから最新作品を取得中...</div>';
+  function makeCard(item, i) {
+    const title = item.title || '';
+    const actress = item.iteminfo?.actress?.[0]?.name || '女優情報なし';
+    const thumb = item.imageURL?.large || item.imageURL?.list || '';
+    const cid = item.content_id || '';
+    const affiliateUrl = item.affiliateURL || '#';
+    const badge = BADGES[i % BADGES.length];
+    const iframeSrc = cid
+      ? `https://www.dmm.co.jp/litevideo/-/part/=/cid=${cid}/size=476_306/affi_id=tigerstiger-990/?autoplay=1&mute=1`
+      : '';
 
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.innerHTML = `
+      <div class="card-thumb">
+        ${thumb ? `<img src="${thumb}" alt="${actress}" loading="lazy">` : ''}
+      </div>
+      ${iframeSrc ? `
+      <div class="iframe-wrap">
+        <iframe data-src="${iframeSrc}" allowfullscreen scrolling="no" allow="autoplay; muted; fullscreen"></iframe>
+      </div>` : ''}
+      <div class="tap-overlay" onclick="activateCard(this)">
+        <div class="play-btn">
+          <div class="play-triangle"></div>
+        </div>
+      </div>
+      <div class="side-actions">
+        <div class="side-btn" onclick="toggleLike(this)">
+          <div class="side-icon">♡</div>
+          <span class="side-label">いいね</span>
+        </div>
+        <div class="side-btn" onclick="skipNext(this)">
+          <div class="side-icon">↷</div>
+          <span class="side-label">スキップ</span>
+        </div>
+      </div>
+      <div class="overlay">
+        <span class="badge">${badge}</span>
+        <div class="actress">${actress}</div>
+        <div class="title">${title}</div>
+        <a class="cta" href="${affiliateUrl}" target="_blank">続きを見る →</a>
+      </div>`;
+    return div;
+  }
+
+  async function loadItems(keyword = '', reset = false) {
+    if (isLoading || !hasMore) return;
+    isLoading = true;
+
+    if (reset) currentPage = 1;
+
+    const feed = document.getElementById('feed');
+
+    const loader = document.createElement('div');
+    loader.className = 'loading-card';
+    loader.id = 'loader';
+    loader.textContent = '読み込み中...';
+    feed.appendChild(loader);
+
+    const offset = (currentPage - 1) * 20 + 1;
     const params = new URLSearchParams({
       api_id: API_ID,
       affiliate_id: 'tigerstiger-990',
@@ -242,6 +315,7 @@
       service: 'digital',
       floor: 'videoa',
       hits: '20',
+      offset: String(offset),
       sort: 'rank',
       output: 'json'
     });
@@ -254,80 +328,37 @@
       const data = await res.json();
       const items = data?.result?.items;
 
+      document.getElementById('loader')?.remove();
+
       if (!items || items.length === 0) {
-        feed.innerHTML = '<div class="loading-screen">作品が見つかりませんでした。</div>';
+        hasMore = false;
+        isLoading = false;
         return;
       }
 
-      feed.innerHTML = items.map((item, i) => {
-        const title = item.title || '';
-        const actress = item.iteminfo?.actress?.[0]?.name || '女優情報なし';
-        const thumb = item.imageURL?.large || item.imageURL?.list || '';
-        const cid = item.content_id || '';
-        const affiliateUrl = item.affiliateURL || '#';
-        const badge = BADGES[i % BADGES.length];
-        const iframeSrc = cid
-          ? `https://www.dmm.co.jp/litevideo/-/part/=/cid=${cid}/size=476_306/affi_id=tigerstiger-990/?autoplay=1&mute=1`
-          : '';
+      const fragment = document.createDocumentFragment();
+      items.forEach((item, i) => {
+        const card = makeCard(item, (currentPage - 1) * 20 + i);
+        fragment.appendChild(card);
+      });
+      feed.appendChild(fragment);
 
-        return `
-        <div class="card" data-cid="${cid}">
-          <div class="card-thumb">
-            ${thumb ? `<img src="${thumb}" alt="${actress}" loading="lazy">` : ''}
-          </div>
-          ${iframeSrc ? `
-          <div class="iframe-wrap">
-            <iframe
-              data-src="${iframeSrc}"
-              allowfullscreen
-              scrolling="no"
-              allow="autoplay; muted; fullscreen">
-            </iframe>
-          </div>` : ''}
-          <div class="tap-overlay" onclick="activateCard(this)">
-            <div class="play-btn">
-              <div class="play-triangle"></div>
-            </div>
-          </div>
-          <div class="side-actions">
-            <div class="side-btn" onclick="toggleLike(this)">
-              <div class="side-icon">♡</div>
-              <span class="side-label">いいね</span>
-            </div>
-            <div class="side-btn" onclick="skipNext(this)">
-              <div class="side-icon">↷</div>
-              <span class="side-label">スキップ</span>
-            </div>
-          </div>
-          <div class="overlay">
-            <span class="badge">${badge}</span>
-            <div class="actress">${actress}</div>
-            <div class="title">${title}</div>
-            <a class="cta" href="${affiliateUrl}" target="_blank">続きを見る →</a>
-          </div>
-        </div>`;
-      }).join('');
+      currentPage++;
+      isLoading = false;
 
       setupIntersection();
+      setupScrollEnd();
 
     } catch (e) {
-      feed.innerHTML = '<div class="loading-screen">データの取得に失敗しました。</div>';
+      document.getElementById('loader')?.remove();
+      isLoading = false;
     }
-  }
-
-  function activateCard(overlay) {
-    const card = overlay.closest('.card');
-    const iframe = card.querySelector('iframe');
-    const playBtn = overlay.querySelector('.play-btn');
-    if (iframe && !iframe.src) {
-      iframe.src = iframe.dataset.src;
-    }
-    playBtn.classList.add('hidden');
-    overlay.classList.add('playing');
   }
 
   function setupIntersection() {
-    const observer = new IntersectionObserver((entries) => {
+    if (observer) observer.disconnect();
+
+    observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         const card = entry.target;
         const iframe = card.querySelector('iframe');
@@ -335,7 +366,7 @@
         const playBtn = card.querySelector('.play-btn');
 
         if (entry.isIntersecting) {
-          if (iframe && !iframe.src) {
+          if (iframe && !iframe.src && activated) {
             iframe.src = iframe.dataset.src;
             if (playBtn) playBtn.classList.add('hidden');
             if (overlay) overlay.classList.add('playing');
@@ -351,6 +382,20 @@
     }, { threshold: 0.8 });
 
     document.querySelectorAll('.card').forEach(card => observer.observe(card));
+  }
+
+  function setupScrollEnd() {
+    const feed = document.getElementById('feed');
+    feed.removeEventListener('scroll', onScroll);
+    feed.addEventListener('scroll', onScroll);
+  }
+
+  function onScroll() {
+    const feed = document.getElementById('feed');
+    const remaining = feed.scrollHeight - feed.scrollTop - feed.clientHeight;
+    if (remaining < feed.clientHeight * 2 && !isLoading && hasMore) {
+      loadItems(currentKeyword);
+    }
   }
 </script>
 </body>
