@@ -84,6 +84,28 @@
       background: transparent;
     }
 
+    .tap-overlay {
+      position: absolute; inset: 0;
+      z-index: 3; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .tap-overlay.playing { pointer-events: none; }
+
+    .play-btn {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity 0.3s;
+    }
+    .play-btn.hidden { opacity: 0; }
+    .play-triangle {
+      width: 0; height: 0;
+      border-top: 13px solid transparent;
+      border-bottom: 13px solid transparent;
+      border-left: 24px solid rgba(255,255,255,0.9);
+      margin-left: 5px;
+    }
+
     .side-actions {
       position: absolute; right: 12px; bottom: 160px;
       display: flex; flex-direction: column; gap: 20px; align-items: center;
@@ -180,9 +202,12 @@
   function enterSite() {
     document.getElementById('age-gate').style.display = 'none';
     localStorage.setItem('age_verified', '1');
+    initFeed();
   }
+
   if (localStorage.getItem('age_verified')) {
     document.getElementById('age-gate').style.display = 'none';
+    document.addEventListener('DOMContentLoaded', () => loadItems());
   }
 
   function filterBy(el, keyword) {
@@ -194,6 +219,16 @@
   function toggleLike(btn) {
     const icon = btn.querySelector('.side-icon');
     icon.classList.toggle('liked');
+  }
+
+  function skipNext(btn) {
+    const card = btn.closest('.card');
+    const next = card.nextElementSibling;
+    if (next) next.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function initFeed() {
+    loadItems();
   }
 
   async function loadItems(keyword = '') {
@@ -232,18 +267,28 @@
         const affiliateUrl = item.affiliateURL || '#';
         const badge = BADGES[i % BADGES.length];
         const iframeSrc = cid
-          ? `https://www.dmm.co.jp/litevideo/-/part/=/cid=${cid}/size=476_306/affi_id=tigerstiger-990/`
+          ? `https://www.dmm.co.jp/litevideo/-/part/=/cid=${cid}/size=476_306/affi_id=tigerstiger-990/?autoplay=1&mute=1`
           : '';
 
         return `
-        <div class="card">
+        <div class="card" data-cid="${cid}">
           <div class="card-thumb">
-            ${thumb ? `<img src="${thumb}" alt="${actress}">` : ''}
+            ${thumb ? `<img src="${thumb}" alt="${actress}" loading="lazy">` : ''}
           </div>
           ${iframeSrc ? `
           <div class="iframe-wrap">
-            <iframe src="${iframeSrc}" allowfullscreen scrolling="no"></iframe>
+            <iframe
+              data-src="${iframeSrc}"
+              allowfullscreen
+              scrolling="no"
+              allow="autoplay; muted; fullscreen">
+            </iframe>
           </div>` : ''}
+          <div class="tap-overlay" onclick="activateCard(this)">
+            <div class="play-btn">
+              <div class="play-triangle"></div>
+            </div>
+          </div>
           <div class="side-actions">
             <div class="side-btn" onclick="toggleLike(this)">
               <div class="side-icon">♡</div>
@@ -263,18 +308,50 @@
         </div>`;
       }).join('');
 
+      setupIntersection();
+
     } catch (e) {
       feed.innerHTML = '<div class="loading-screen">データの取得に失敗しました。</div>';
     }
   }
 
-  function skipNext(btn) {
-    const card = btn.closest('.card');
-    const next = card.nextElementSibling;
-    if (next) next.scrollIntoView({ behavior: 'smooth' });
+  function activateCard(overlay) {
+    const card = overlay.closest('.card');
+    const iframe = card.querySelector('iframe');
+    const playBtn = overlay.querySelector('.play-btn');
+    if (iframe && !iframe.src) {
+      iframe.src = iframe.dataset.src;
+    }
+    playBtn.classList.add('hidden');
+    overlay.classList.add('playing');
   }
 
-  loadItems();
+  function setupIntersection() {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        const card = entry.target;
+        const iframe = card.querySelector('iframe');
+        const overlay = card.querySelector('.tap-overlay');
+        const playBtn = card.querySelector('.play-btn');
+
+        if (entry.isIntersecting) {
+          if (iframe && !iframe.src) {
+            iframe.src = iframe.dataset.src;
+            if (playBtn) playBtn.classList.add('hidden');
+            if (overlay) overlay.classList.add('playing');
+          }
+        } else {
+          if (iframe && iframe.src) {
+            iframe.src = '';
+            if (playBtn) playBtn.classList.remove('hidden');
+            if (overlay) overlay.classList.remove('playing');
+          }
+        }
+      });
+    }, { threshold: 0.8 });
+
+    document.querySelectorAll('.card').forEach(card => observer.observe(card));
+  }
 </script>
 </body>
 </html>
